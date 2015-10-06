@@ -90,6 +90,8 @@ define(
                console.log("******************* hit the now line! ****************")
                // move to the "script"
               theScript.value+=(textBox.value + "\n");
+              var msg = new SpeechSynthesisUtterance(textBox.value);
+              window.speechSynthesis.speak(msg);
             } 
          }
 
