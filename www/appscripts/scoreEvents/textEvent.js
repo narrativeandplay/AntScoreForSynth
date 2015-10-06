@@ -9,8 +9,9 @@ define(
          textBox.className="textBox1"
          var scoreElmt=document.getElementById("block1b");
 
-         // remember the chat area (the "script")
+         // remember the chat area (the "script") and sound state button
          var theScript = document.getElementById("publicChatArea");
+         var toggleSoundButton = document.getElementById("soundToggleButton");
 
          //var foo = scoreElmt.getBoundingClientRect();
 
@@ -103,8 +104,10 @@ define(
                if(textBox.readOnly == true && textBox.value.length>0) {
                   theScript.value+=(textBox.value + "\n");
                   theScript.scrollTop = theScript.scrollHeight;
-                  var msg = new SpeechSynthesisUtterance(textBox.value);
-                  window.speechSynthesis.speak(msg);
+                  if(toggleSoundButton.state===true) {
+                    var msg = new SpeechSynthesisUtterance(textBox.value);
+                    window.speechSynthesis.speak(msg);
+                }
                }
          }
 

@@ -126,6 +126,7 @@ require(
 	
 
 		var toggleSoundButton = window.document.getElementById("soundToggleButton");
+		toggleSoundButton.state=true; // hack to get access to state from textEvent
 		var toggleSoundState=1;
 		toggleSoundButton.style.background='#005900';
 
@@ -210,9 +211,11 @@ require(
 			*/
 			if (toggleSoundState===0){
 				toggleSoundButton.style.background='#590000';
+				toggleSoundButton.state=false;
 				soundSelect.setMute(true);
 			} else {
 				toggleSoundButton.style.background='#005900';
+				toggleSoundButton.state=true;
 				soundSelect.setMute(false);
 			}
 		}
