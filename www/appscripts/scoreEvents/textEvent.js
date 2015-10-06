@@ -102,6 +102,7 @@ define(
                // move to the "script", but only if the offer has been finalized
                if(textBox.readOnly == true && textBox.value.length>0) {
                   theScript.value+=(textBox.value + "\n");
+                  theScript.scrollTop = theScript.scrollHeight;
                   var msg = new SpeechSynthesisUtterance(textBox.value);
                   window.speechSynthesis.speak(msg);
                }
