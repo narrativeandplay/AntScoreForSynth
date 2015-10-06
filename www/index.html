@@ -27,20 +27,20 @@
                0000 
             </span>
         </div>
-        <div id="block0d" >
+        <div id="block0d" hidden>
               <h4>"Anticipatory" Score</h4>
 
         </div>
 	</div>
 
     <div id="block1">
-        <div id="block1a">
+        <div id="block1a" hidden>
                         <canvas id="slidercanvas1"></canvas>
         </div>
         <div id="block1b" >
         	            <canvas id="score"></canvas>
         </div>
-        <div id="block1c" >
+        <div id="block1c" hidden>
                      <div > 
                         <div id="radioSelectDiv">
                           <div align="center">
@@ -49,7 +49,7 @@
                            <div class="radioSelect" hidden>
                                 <input type="radio"  name="radioSelect" id="radioSpray" value="spray">Event Spray<br>
                             </div>
-                            <div class="radioSelect">
+                            <div class="radioSelect" hidden>
                                 <input type="radio"  name="radioSelect"   id="radioContour" value="contour">Musical Contour (alt-M)<br>
                             </div>
                             <div class="radioSelect">
@@ -115,7 +115,7 @@
     </div>
     <div id="block3">
         <div id="block3a" ></div>
-        <div id="block3b" >
+        <div id="block3b" hidden>
 
                 <div id="soundToggleButtonDiv" >
                             <input id="soundToggleButton" type="button" value="Sound Toggle"> 
@@ -131,7 +131,7 @@
 
 
         </div>
-        <div id="block3c" >
+        <div id="block3c" hidden>
             <input id="timeLockSlider" type="range" name="points" step=".01" min="0.001" max="1">
         </div>
 
@@ -143,7 +143,7 @@
     <div id="block4">
           <div id="block4a">
           </div>
-          <div id="block4b">
+          <div id="block4b" hidden>
             <div id="descXDivId">
               <input id="descXButton" type="button" value="dX" > 
               <input id="descXSlider" type="range" step=".25" min="0.25" max="2" value="1">
@@ -162,7 +162,7 @@
 
           </div>
           <div id="block4c">
-            <div id="block4c1">
+            <div id="block4c1" hidden>
                <div id="chatheader">
                 Chat
                </div>
@@ -172,7 +172,7 @@
               <textarea id="publicChatArea" readonly></textarea>
             </div>
           </div>
-          <div id="block4d" >
+          <div id="block4d" hidden>
             <div id="soundDiv"> Current Sound
                <select id="newSoundSelector">
                </select><br>

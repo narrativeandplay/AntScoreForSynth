@@ -9,6 +9,9 @@ define(
          textBox.className="textBox1"
          var scoreElmt=document.getElementById("block1b");
 
+         // remember the chat area (the "script")
+         var theScript = document.getElementById("publicChatArea");
+
          //var foo = scoreElmt.getBoundingClientRect();
 
         textBox.readOnly = true; // by default - change manually if its our own 
@@ -42,9 +45,11 @@ define(
         }
 
         m_scoreEvent.setText=function(id, iText){
-          m_scoreEvent.text=id + "> " + iText;
-          textBox.value= id + "> " + iText;
-          console.log("id is " + id + ", and .s is " + m_scoreEvent.s);
+          //m_scoreEvent.text=id + "> " + iText;
+          m_scoreEvent.text=iText;
+          //textBox.value= id + "> " + iText;
+          textBox.value= iText;
+          console.log("id is " + id + ", and .s is " + m_scoreEvent.s + ": " + iText);
         }
 
          textBox.onkeyup=function(evt){
@@ -54,6 +59,9 @@ define(
           if (evt.keyIdentifier==="Enter") {
             m_scoreEvent.comm.sendJSONmsg("update", {"gID": m_scoreEvent.gID, "text": m_scoreEvent.text});
             textBox.blur();
+
+            // disable editing after pressing enter
+            textBox.readOnly = true;
           }
 
           /*
@@ -76,6 +84,13 @@ define(
                this.drawSelected(ctx,time2Px);
             }
             this.myDraw(ctx, time2Px(this.d[0][0])  , this.d[0][1] );
+
+            // add to script when the text hits the now line
+            if (nowishP(this.d[0][0])){
+               console.log("******************* hit the now line! ****************")
+               // move to the "script"
+              theScript.value+=(textBox.value + "\n");
+            } 
          }
 
 
@@ -108,7 +123,7 @@ define(
                 //console.log("myDraw: m_scoreEvent.text = " + m_scoreEvent.text);
                 textBox.style.top=scoreElmt.offsetTop + scoreElmt.clientHeight*y/ctx.canvas.height+"px";
                 textBox.style.left=scoreElmt.offsetLeft+ scoreElmt.clientWidth*x/ctx.canvas.width+"px";
-                textBox.size=Math.max(3, .8*textBox.value.length);
+                textBox.size=Math.max(3, textBox.value.length);
                 textBox.style.clip = "rect(0px " + (tbRect.width+seRect.right-tbRect.right) + "px " +  (tbRect.height+seRect.bottom-tbRect.bottom) +  "px " + (seRect.left-tbRect.left)  + "px)"; //scoreElmt.getBoundingClientRect();
                 //console.log("textBox length = " + textBox.value.length);
                 //console.log ("x = " + x + ", ctx.canvas.width = " + ctx.canvas.width + ", textBox.x is " + textBox.style.left);

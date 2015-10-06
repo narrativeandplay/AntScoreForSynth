@@ -218,7 +218,8 @@ require(
 		}
 
 
-		var radioSelection = "contour"; // by default
+		//var radioSelection = "contour"; // by default
+		var radioSelection = "text"; // by default
 
 		window.addEventListener("keydown", keyDown, true);
 
