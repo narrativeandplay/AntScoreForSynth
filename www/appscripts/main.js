@@ -466,8 +466,8 @@ require(
 		var scoreWindowTimeLength=40000; //ms
 		var pixelShiftPerMs=1*theCanvas.width/(scoreWindowTimeLength);
 		var pxPerSec=pixelShiftPerMs*1000;
-		var nowLinePx=1*theCanvas.width/3;
-		var pastLinePx=-20; // after which we delete the display elements
+		var nowLinePx=1; //1*theCanvas.width/3;
+		var pastLinePx=0; //-20; // after which we delete the display elements
 
 		var sprocketHeight=2;
 		var sprocketWidth=1;
@@ -598,7 +598,8 @@ require(
  
  			// Draw scrolling sprockets--
  			context.fillStyle = "#999999";
- 			var sTime = (elapsedtime+scoreWindowTimeLength*(2/3))- (elapsedtime+scoreWindowTimeLength*(2/3))%sprocketInterval;
+ 			//var sTime = (elapsedtime+scoreWindowTimeLength*(2/3))- (elapsedtime+scoreWindowTimeLength*(2/3))%sprocketInterval;
+ 			var sTime = (elapsedtime+scoreWindowTimeLength) - (elapsedtime+scoreWindowTimeLength)%sprocketInterval;
  			//console.log("sprocket stime: " + sTime);
 			var sPx= time2Px(sTime);
 			//console.log("t since origin is " + t_sinceOrigin + ", and sTime is " + sTime);
@@ -620,7 +621,8 @@ require(
 			if (descXButton.toggleState===1){
 				context.lineWidth =1;
 				context.strokeStyle = "#333";
-				sTime = (elapsedtime+scoreWindowTimeLength*(2/3))- (elapsedtime+scoreWindowTimeLength*(2/3))%(descXMsInterval);
+				//sTime = (elapsedtime+scoreWindowTimeLength*(2/3))- (elapsedtime+scoreWindowTimeLength*(2/3))%(descXMsInterval);
+				sTime = (elapsedtime+scoreWindowTimeLength)- (elapsedtime+scoreWindowTimeLength)%(descXMsInterval);
 				//console.log("descX sTime: " + sTime);
 				//console.log(" ");
 				var start_sPx= time2Px(sTime);

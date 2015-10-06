@@ -44,6 +44,11 @@ define(
           textBox.style.border="2px solid green";
         }
 
+        m_scoreEvent.disableEditing= function(){
+          textBox.readOnly = true;
+          textBox.style.border="2px solid white";
+        }
+
         m_scoreEvent.setText=function(id, iText){
           //m_scoreEvent.text=id + "> " + iText;
           m_scoreEvent.text=iText;
@@ -61,7 +66,7 @@ define(
             textBox.blur();
 
             // disable editing after pressing enter
-            textBox.readOnly = true;
+            m_scoreEvent.disableEditing();
           }
 
           /*
@@ -87,12 +92,19 @@ define(
 
             // add to script when the text hits the now line
             if (nowishP(this.d[0][0])){
-               console.log("******************* hit the now line! ****************")
-               // move to the "script"
-              theScript.value+=(textBox.value + "\n");
-              var msg = new SpeechSynthesisUtterance(textBox.value);
-              window.speechSynthesis.speak(msg);
+              this.sayOffer(textBox.value);
             } 
+         }
+
+         m_scoreEvent.sayOffer = function(theOffer) {
+               console.log("******************* hit the now line! ****************");
+
+               // move to the "script", but only if the offer has been finalized
+               if(textBox.readOnly == true && textBox.value.length>0) {
+                  theScript.value+=(textBox.value + "\n");
+                  var msg = new SpeechSynthesisUtterance(textBox.value);
+                  window.speechSynthesis.speak(msg);
+               }
          }
 
 
