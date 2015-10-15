@@ -183,9 +183,19 @@ require(
 			}
 		}
 
+
+		// voices
+		var voiceIDMap=[]; // indexed by client ID
 		if ('speechSynthesis' in window) {
 			// Get the voice select element.
 			var voiceSelect = document.getElementById('voice');
+
+			// set handler
+			voiceSelect.onchange=function() {
+				var selectedVoice = voiceSelect.value;
+				voiceIDMap[myID]=selectedVoice;
+				comm.sendJSONmsg("setVoice", {"voice": selectedVoice});
+			}
 
 			// Fetch the list of voices and populate the voice options.
 			function loadVoices() {
@@ -386,6 +396,8 @@ require(
 			current_remoteEvent[src]=scoreEvent(data.type);
 			current_remoteEvent[src].gID=data.gID;
 			current_remoteEvent[src].color=colorIDMap[src];
+			current_remoteEvent[src].textVoice=voiceIDMap[src];
+			console.log("setting voice " + voiceIDMap[src])
 			// automatically fill any fields of the new scoreEvent sent
 			for (fname in data.fields){
 				current_remoteEvent[src][fname]=data.fields[fname];
@@ -438,6 +450,12 @@ require(
 				}
 		});
 		//---------------------------------------------------------------------------
+		// set the voice
+		comm.registerCallback('setVoice', function(data, src) {
+			console.log("setVoice: " + src + ", " + data["voice"])
+			voiceIDMap[src]=data["voice"]; // set voice
+		});
+		//---------------------------------------------------------------------------
 		// data is [timestamp (relative to "now"), x,y] of mouseContourGesture, and src is the id of the clicking client
 		comm.registerCallback('endGesture', function(data, src) {
 			current_remoteEvent[src]=undefined; // no more data coming
@@ -474,10 +492,12 @@ require(
 			console.log("In rommembers callback, src (to set myID is " + src);
 			myID=src; /// THIS IS WHERE WE FIRST GET IT.
 			colorIDMap[myID]="#00FF00"; // I am always green
+			voiceIDMap[myID]=voiceSelect.value; // my voice
 			data.forEach(function(m){
 				if (m != myID){
 					console.log("... " + m + " is also in this room");
 					colorIDMap[m]=utils.getRandomColor1(100,255,0,120,100,255);
+					// should set voices here, for now do randomly
 				} 
 			});
 
@@ -857,6 +877,9 @@ block4c1
 				current_mgesture=scoreEvent("textEvent");
 				current_mgesture.enableEditing(); // enable since it's our own for typing into
 				current_mgesture.d=[[t,y,z]];
+				current_mgesture.color=colorIDMap[myID];
+				current_mgesture.textVoice=voiceIDMap[myID];
+				console.log("setting voice " + voiceIDMap[myID])
 
 				// calculate the length of the text box on the canvas
 				//current_mgesture.d.push([t + pxTimeSpan(context.measureText(m_tTab.currentSelection()).width),y,z]);

@@ -18,9 +18,6 @@ define(
 
         textBox.readOnly = true; // by default - change manually if its our own 
 
-        // Get the voice select element.
-        var voiceSelect = document.getElementById('voice');
-
          //textBox.style.top=scoreElmt.offsetTop + "px";
          //textBox.style.left=scoreElmt.offsetLeft + "px";
 
@@ -134,8 +131,9 @@ define(
                   if(toggleSoundButton.state===true ) {
                     if ('speechSynthesis' in window) {
                       var msg = new SpeechSynthesisUtterance(textBox.value);
-                      if (voiceSelect.value) {
-                        msg.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == voiceSelect.value; })[0];
+                      if (this.textVoice) { //voiceSelect.value) {
+                        msg.voice = speechSynthesis.getVoices().filter(function(thisVoice) { return thisVoice.name == this.textVoice; })[0]; //voiceSelect.value; })[0];
+                        console.log("Speaking with voice " + this.textVoice)
                       }
                       window.speechSynthesis.speak(msg);
                     }
