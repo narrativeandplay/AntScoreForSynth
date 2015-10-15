@@ -18,6 +18,8 @@ define(
 
         textBox.readOnly = true; // by default - change manually if its our own 
 
+        // Get the voice select element.
+        var voiceSelect = document.getElementById('voice');
 
          //textBox.style.top=scoreElmt.offsetTop + "px";
          //textBox.style.left=scoreElmt.offsetLeft + "px";
@@ -131,11 +133,13 @@ define(
                   theScript.scrollTop = theScript.scrollHeight;
                   if(toggleSoundButton.state===true) {
                     var msg = new SpeechSynthesisUtterance(textBox.value);
+                    if (voiceSelect.value) {
+                      msg.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == voiceSelect.value; })[0];
+                    }
                     window.speechSynthesis.speak(msg);
                 }
                }
          }
-
 
          m_scoreEvent.myDraw = function(ctx, x, y){
 
