@@ -61,16 +61,34 @@ define(
           console.log("id is " + id + ", and .s is " + m_scoreEvent.s + ": " + iText);
         }
 
-         textBox.onkeyup=function(evt){
-          var chrTyped, chrCode = 0;
-          m_scoreEvent.text=textBox.value;
-          console.log("in onkeyup, on keypress m_scoreEvent.text = " + m_scoreEvent.text);
-          if (evt.keyIdentifier==="Enter") {
-            m_scoreEvent.comm.sendJSONmsg("update", {"gID": m_scoreEvent.gID, "text": m_scoreEvent.text});
-            textBox.blur();
+        var deleteFlag;
+        var destroyed = false;
 
-            // disable editing after pressing enter
-            m_scoreEvent.disableEditing();
+        // hack to catch delete key without a backspace
+        textBox.onkeydown=function(evt){
+          var charCode = (evt.which) ? evt.which : event.keyCode;
+          console.log("in onkeydown, on keypress m_scoreEvent.text = " + m_scoreEvent.text + ", key=" + evt.keyIdentifier);
+          if (charCode==8 && textBox.value.length==0) {
+            console.log("now we should delete*******");
+            deleteFlag=true;
+          } else {
+            deleteFlag=false;
+          }
+        }
+
+         textBox.onkeyup=function(evt){
+          var chrTyped = 0;
+          var charCode = (evt.which) ? evt.which : event.keyCode;
+          m_scoreEvent.text=textBox.value;
+          console.log("in onkeyup, on keypress m_scoreEvent.text = " + m_scoreEvent.text + ", key=" + evt.keyIdentifier);
+          if (deleteFlag===true) {
+            // really delete
+            console.log("delete*******");
+            m_scoreEvent.comm.sendJSONmsg("delete", {"gID": m_scoreEvent.gID, "text": m_scoreEvent.text});
+            m_scoreEvent.destroy();
+            destroyed=true;
+          } else {
+            m_scoreEvent.comm.sendJSONmsg("update", {"gID": m_scoreEvent.gID, "text": m_scoreEvent.text});
           }
 
           /*
@@ -104,7 +122,7 @@ define(
                console.log("******************* hit the now line! ****************");
 
                // move to the "script", but only if the offer has been finalized
-               if(textBox.readOnly == true && textBox.value.length>0) {
+               if(textBox.readOnly == true && textBox.value.length>0 && !destroyed) {
                   theScript.value+=(textBox.value + "\n");
                   theScript.scrollTop = theScript.scrollHeight;
                   if(toggleSoundButton.state===true) {
@@ -151,7 +169,9 @@ define(
          }
 
          m_scoreEvent.destroy = function(){
+          if (!destroyed) {
             scoreElmt.removeChild(textBox);
+          }
          }
 
          //m_scoreEvent.mySVG= '<svg height="12" width="12"> <text x="0" y="15" fill="red">I love SVG!</text> </svg>'

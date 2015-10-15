@@ -63,6 +63,16 @@ require(
 			return undefined;
 		}
 
+		var findElmtIndex=function(objArray,src,id){
+			for(var i=0;i<objArray.length;i++){
+				console.log("findElmt: obj.gID = " + objArray[i].gID + " (id = " + id + "), and obj.s = " + objArray[i].s + " ( src = " + src + ")");
+				if ((objArray[i].gID===id) && (objArray[i].s===src)){
+					return i;
+				}
+			}
+			return undefined;
+		}
+
 
 		var colorIDMap=[]; // indexed by client ID
 		var current_remoteEvent=[]; // indexed by client ID
@@ -379,6 +389,20 @@ require(
 					foo[fname]=data[fname];
 					if (fname === "text"){
 						foo.setText(src, data[fname]);
+					}
+				}
+		});
+	//------------------------
+	// Finds the at most one element on the display list from the src with data.gID 
+	// and deletes it
+		comm.registerCallback('delete', function (data, src){
+				var foo = findElmt(displayElements, src, data.gID);
+				console.log("destroy: foo is " + foo);
+				for (fname in data){
+					foo[fname]=data[fname];
+					if (fname === "text"){
+						foo.destroy();
+						displayElements.splice(findElmtIndex(displayElements, src, data.gID),1);
 					}
 				}
 		});
