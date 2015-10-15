@@ -34,6 +34,8 @@ define(
 
          m_textHeight=12;
 
+         textBox.style.fontSize="18pt";
+
 /*
          m_scoreEvent.addChar = function (c){
             m_scoreEvent.text+=c;
@@ -42,12 +44,13 @@ define(
 
         m_scoreEvent.enableEditing= function(){
           textBox.readOnly = false;
-          textBox.style.border="2px solid green";
+          textBox.style.border="2px solid #d9d9d9";
         }
 
         m_scoreEvent.disableEditing= function(){
           textBox.readOnly = true;
           textBox.style.border="2px solid white";
+          textBox.style.background="#d9d9d9";
         }
 
         m_scoreEvent.setText=function(id, iText){

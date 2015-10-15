@@ -128,7 +128,7 @@ require(
 		var toggleSoundButton = window.document.getElementById("soundToggleButton");
 		toggleSoundButton.state=true; // hack to get access to state from textEvent
 		var toggleSoundState=1;
-		toggleSoundButton.style.background='#005900';
+		toggleSoundButton.src="images/unmute.png";
 
 
 		var descXMsInterval; // =1000*descXSlider.value;
@@ -210,11 +210,11 @@ require(
 			}
 			*/
 			if (toggleSoundState===0){
-				toggleSoundButton.style.background='#590000';
+				toggleSoundButton.src="images/mute.png";
 				toggleSoundButton.state=false;
 				soundSelect.setMute(true);
 			} else {
-				toggleSoundButton.style.background='#005900';
+				toggleSoundButton.src="images/unmute.png";
 				toggleSoundButton.state=true;
 				soundSelect.setMute(false);
 			}
@@ -600,7 +600,7 @@ require(
 			//---------------------------------------------------------------
  
  			// Draw scrolling sprockets--
- 			context.fillStyle = "#999999";
+ 			context.fillStyle = "#b2b2b2";
  			//var sTime = (elapsedtime+scoreWindowTimeLength*(2/3))- (elapsedtime+scoreWindowTimeLength*(2/3))%sprocketInterval;
  			var sTime = (elapsedtime+scoreWindowTimeLength) - (elapsedtime+scoreWindowTimeLength)%sprocketInterval;
  			//console.log("sprocket stime: " + sTime);
@@ -612,7 +612,7 @@ require(
 				sPx-=pixelShiftPerMs*sprocketInterval;
 			}
 			var disTime=sTime-(sTime%5000);
-			context.font="7px Verdana";
+			context.font="5px Verdana";
 			while (disTime >=(sTime-scoreWindowTimeLength)){
 				context.fillText(disTime/1000,time2Px(disTime),10);
 				//console.log("write disTime= " + disTime);
@@ -623,7 +623,7 @@ require(
 			// Draw DescX lines if necessary
 			if (descXButton.toggleState===1){
 				context.lineWidth =1;
-				context.strokeStyle = "#333";
+				context.strokeStyle = "#b2b2b2";
 				//sTime = (elapsedtime+scoreWindowTimeLength*(2/3))- (elapsedtime+scoreWindowTimeLength*(2/3))%(descXMsInterval);
 				sTime = (elapsedtime+scoreWindowTimeLength)- (elapsedtime+scoreWindowTimeLength)%(descXMsInterval);
 				//console.log("descX sTime: " + sTime);
@@ -659,7 +659,7 @@ require(
 			// Draw DescY lines if necessary
 			if (descYButton.toggleState===1){
 				context.lineWidth =1;
-				context.strokeStyle = "#333";
+				context.strokeStyle = "#b2b2b2";
 				descYInterval=1*theCanvas.height / numTracks;
 				descYInterval=1*theCanvas.height/descYSlider.value;
 				for (var i=1;i<descYSlider.value;i++){
@@ -694,15 +694,15 @@ require(
 
 
 					// If element is just crossing the "now" line, create little visual explosion
-					if (nowishP(dispe.d[0][0])){					
-						explosion(time2Px(dispe.d[0][0]), dispe.d[0][1], 5, "#FF0000", 3, "#FFFFFF");
+					//if (nowishP(dispe.d[0][0])){					
+					//	explosion(time2Px(dispe.d[0][0]), dispe.d[0][1], 5, "#FF0000", 3, "#FFFFFF");
 
-					} 
+					//} 
 				}
 			}
 
 			// draw the "now" line
-			context.strokeStyle = "#FF0000";	
+			context.strokeStyle = "#3dbe93";	
 			context.lineWidth =1;
 			context.beginPath();					
 			context.moveTo(nowLinePx, 0);
