@@ -479,7 +479,7 @@ require(
 			console.log("got chat from src = " + src);
 			m_chatter.setText(src, data.text, data.time); 
 		});
-
+block4c1
 
 		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 		// Client activity
@@ -494,7 +494,7 @@ require(
 		var pixelShiftPerMs=1*theCanvas.width/(scoreWindowTimeLength);
 		var pxPerSec=pixelShiftPerMs*1000;
 		var nowLinePx=1; //1*theCanvas.width/3;
-		var pastLinePx=0; //-20; // after which we delete the display elements
+		var pastLinePx=-20; //-20; // after which we delete the display elements
 
 		var sprocketHeight=2;
 		var sprocketWidth=1;
@@ -705,7 +705,7 @@ require(
 
 				if (t_end < pastLinePx) {
 					// remove event from display list
-					//console.log("deleting element at time " + displayElements[dispElmt].e);
+					console.log("deleting element at time " + displayElements[dispElmt].e);
 					displayElements[dispElmt].destroy();
 					displayElements.splice(dispElmt,1);
 

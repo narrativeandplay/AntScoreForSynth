@@ -4,6 +4,7 @@ define(
 
       // For rhythm, the argument to this factory function is an image
       return function (i_arg){
+        var sendImmediately = true;
 
          var textBox=document.createElement("input");
          textBox.className="textBox1"
@@ -49,8 +50,8 @@ define(
 
         m_scoreEvent.disableEditing= function(){
           textBox.readOnly = true;
-          textBox.style.border="2px solid white";
-          textBox.style.background="#d9d9d9";
+          textBox.style.border="2px solid d9d9d9";
+          textBox.style.background="#f0f0f0";
         }
 
         m_scoreEvent.setText=function(id, iText){
@@ -69,7 +70,7 @@ define(
           var charCode = (evt.which) ? evt.which : event.keyCode;
           console.log("in onkeydown, on keypress m_scoreEvent.text = " + m_scoreEvent.text + ", key=" + evt.keyIdentifier);
           if (charCode==8 && textBox.value.length==0) {
-            console.log("now we should delete*******");
+            //console.log("now we should delete*******");
             deleteFlag=true;
           } else {
             deleteFlag=false;
@@ -83,12 +84,14 @@ define(
           console.log("in onkeyup, on keypress m_scoreEvent.text = " + m_scoreEvent.text + ", key=" + evt.keyIdentifier);
           if (deleteFlag===true) {
             // really delete
-            console.log("delete*******");
+            //console.log("delete*******");
             m_scoreEvent.comm.sendJSONmsg("delete", {"gID": m_scoreEvent.gID, "text": m_scoreEvent.text});
             m_scoreEvent.destroy();
             destroyed=true;
           } else {
-            m_scoreEvent.comm.sendJSONmsg("update", {"gID": m_scoreEvent.gID, "text": m_scoreEvent.text});
+            if(sendImmediately||evt.keyIdentifier==="Enter") {
+              m_scoreEvent.comm.sendJSONmsg("update", {"gID": m_scoreEvent.gID, "text": m_scoreEvent.text});
+            }
           }
 
           /*
@@ -114,6 +117,7 @@ define(
 
             // add to script when the text hits the now line
             if (nowishP(this.d[0][0])){
+              this.disableEditing();
               this.sayOffer(textBox.value);
             } 
          }
@@ -122,7 +126,7 @@ define(
                console.log("******************* hit the now line! ****************");
 
                // move to the "script", but only if the offer has been finalized
-               if(textBox.readOnly == true && textBox.value.length>0 && !destroyed) {
+               if(textBox.value.length>0 && !destroyed) {
                   theScript.value+=(textBox.value + "\n");
                   theScript.scrollTop = theScript.scrollHeight;
                   if(toggleSoundButton.state===true) {
