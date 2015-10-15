@@ -131,13 +131,15 @@ define(
                if(textBox.value.length>0 && !destroyed) {
                   theScript.value+=(textBox.value + "\n");
                   theScript.scrollTop = theScript.scrollHeight;
-                  if(toggleSoundButton.state===true) {
-                    var msg = new SpeechSynthesisUtterance(textBox.value);
-                    if (voiceSelect.value) {
-                      msg.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == voiceSelect.value; })[0];
+                  if(toggleSoundButton.state===true ) {
+                    if ('speechSynthesis' in window) {
+                      var msg = new SpeechSynthesisUtterance(textBox.value);
+                      if (voiceSelect.value) {
+                        msg.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == voiceSelect.value; })[0];
+                      }
+                      window.speechSynthesis.speak(msg);
                     }
-                    window.speechSynthesis.speak(msg);
-                }
+                  }
                }
          }
 
