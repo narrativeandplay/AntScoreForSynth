@@ -131,8 +131,10 @@ define(
                   if(toggleSoundButton.state===true ) {
                     if ('speechSynthesis' in window) {
                       var msg = new SpeechSynthesisUtterance(textBox.value);
-                      if (this.textVoice) { //voiceSelect.value) {
-                        msg.voice = speechSynthesis.getVoices().filter(function(thisVoice) { return thisVoice.name == this.textVoice; })[0]; //voiceSelect.value; })[0];
+                      var theVoice = this.textVoice;
+                      if (theVoice) { //voiceSelect.value) {
+                        var availableVoices = speechSynthesis.getVoices();
+                        msg.voice = availableVoices.filter(function(thisVoice) { return thisVoice.name === theVoice; })[0]; //voiceSelect.value; })[0];
                         console.log("Speaking with voice " + this.textVoice)
                       }
                       window.speechSynthesis.speak(msg);
