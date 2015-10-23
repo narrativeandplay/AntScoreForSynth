@@ -174,6 +174,7 @@ define(
                 textBox.style.left=scoreElmt.offsetLeft+ scoreElmt.clientWidth*x/ctx.canvas.width+"px";
                 textBox.size=Math.max(3, textBox.value.length);
                 textBox.style.clip = "rect(0px " + (tbRect.width+seRect.right-tbRect.right) + "px " +  (tbRect.height+seRect.bottom-tbRect.bottom) +  "px " + (seRect.left-tbRect.left)  + "px)"; //scoreElmt.getBoundingClientRect();
+                window.scrollTo(0,0);
                 //console.log("textBox length = " + textBox.value.length);
                 //console.log ("x = " + x + ", ctx.canvas.width = " + ctx.canvas.width + ", textBox.x is " + textBox.style.left);
          }
