@@ -63,6 +63,16 @@ require(
 			return undefined;
 		}
 
+		var findElmtIndex=function(objArray,src,id){
+			for(var i=0;i<objArray.length;i++){
+				console.log("findElmt: obj.gID = " + objArray[i].gID + " (id = " + id + "), and obj.s = " + objArray[i].s + " ( src = " + src + ")");
+				if ((objArray[i].gID===id) && (objArray[i].s===src)){
+					return i;
+				}
+			}
+			return undefined;
+		}
+
 
 		var colorIDMap=[]; // indexed by client ID
 		var current_remoteEvent=[]; // indexed by client ID
@@ -126,8 +136,9 @@ require(
 	
 
 		var toggleSoundButton = window.document.getElementById("soundToggleButton");
+		toggleSoundButton.state=true; // hack to get access to state from textEvent
 		var toggleSoundState=1;
-		toggleSoundButton.style.background='#005900';
+		toggleSoundButton.src="images/unmute.png";
 
 
 		var descXMsInterval; // =1000*descXSlider.value;
@@ -173,6 +184,47 @@ require(
 		}
 
 
+		// voices
+		var voiceIDMap=[]; // indexed by client ID
+		if ('speechSynthesis' in window) {
+			// Get the voice select element.
+			var voiceSelect = document.getElementById('voice');
+
+			// set handler
+			voiceSelect.onchange=function() {
+				var selectedVoice = voiceSelect.value;
+				voiceIDMap[myID]=selectedVoice;
+				comm.sendJSONmsg("setVoice", {"voice": selectedVoice});
+			}
+
+			// Fetch the list of voices and populate the voice options.
+			function loadVoices() {
+		  
+		  		// Fetch the available voices.
+				var voices = speechSynthesis.getVoices();
+		  
+				// Loop through each of the voices.
+				voices.forEach(function(voice, i) {
+			    	// Create a new option element.
+					var option = document.createElement('option');
+			    
+				    // Set the options value and text.
+					option.value = voice.name;
+					option.innerHTML = voice.name;
+					  
+			    	// Add the option to the voice selector.
+					voiceSelect.appendChild(option);
+				});
+			}
+
+			// Execute loadVoices.
+			loadVoices();
+
+			// Chrome loads voices asynchronously.
+			window.speechSynthesis.onvoiceschanged = function(e) {
+			  loadVoices();
+			};
+		}
 
 
 		var getScoreTime=function(){
@@ -209,16 +261,19 @@ require(
 			}
 			*/
 			if (toggleSoundState===0){
-				toggleSoundButton.style.background='#590000';
+				toggleSoundButton.src="images/mute.png";
+				toggleSoundButton.state=false;
 				soundSelect.setMute(true);
 			} else {
-				toggleSoundButton.style.background='#005900';
+				toggleSoundButton.src="images/unmute.png";
+				toggleSoundButton.state=true;
 				soundSelect.setMute(false);
 			}
 		}
 
 
-		var radioSelection = "contour"; // by default
+		//var radioSelection = "contour"; // by default
+		var radioSelection = "text"; // by default
 
 		window.addEventListener("keydown", keyDown, true);
 
@@ -341,6 +396,8 @@ require(
 			current_remoteEvent[src]=scoreEvent(data.type);
 			current_remoteEvent[src].gID=data.gID;
 			current_remoteEvent[src].color=colorIDMap[src];
+			current_remoteEvent[src].textVoice=voiceIDMap[src];
+			console.log("setting voice " + voiceIDMap[src])
 			// automatically fill any fields of the new scoreEvent sent
 			for (fname in data.fields){
 				current_remoteEvent[src][fname]=data.fields[fname];
@@ -377,6 +434,26 @@ require(
 						foo.setText(src, data[fname]);
 					}
 				}
+		});
+	//------------------------
+	// Finds the at most one element on the display list from the src with data.gID 
+	// and deletes it
+		comm.registerCallback('delete', function (data, src){
+				var foo = findElmt(displayElements, src, data.gID);
+				console.log("destroy: foo is " + foo);
+				for (fname in data){
+					foo[fname]=data[fname];
+					if (fname === "text"){
+						foo.destroy();
+						displayElements.splice(findElmtIndex(displayElements, src, data.gID),1);
+					}
+				}
+		});
+		//---------------------------------------------------------------------------
+		// set the voice
+		comm.registerCallback('setVoice', function(data, src) {
+			console.log("setVoice: " + src + ", " + data["voice"])
+			voiceIDMap[src]=data["voice"]; // set voice
 		});
 		//---------------------------------------------------------------------------
 		// data is [timestamp (relative to "now"), x,y] of mouseContourGesture, and src is the id of the clicking client
@@ -415,10 +492,12 @@ require(
 			console.log("In rommembers callback, src (to set myID is " + src);
 			myID=src; /// THIS IS WHERE WE FIRST GET IT.
 			colorIDMap[myID]="#00FF00"; // I am always green
+			voiceIDMap[myID]=voiceSelect.value; // my voice
 			data.forEach(function(m){
 				if (m != myID){
 					console.log("... " + m + " is also in this room");
 					colorIDMap[m]=utils.getRandomColor1(100,255,0,120,100,255);
+					// should set voices here, for now do randomly
 				} 
 			});
 
@@ -451,7 +530,7 @@ require(
 			console.log("got chat from src = " + src);
 			m_chatter.setText(src, data.text, data.time); 
 		});
-
+block4c1
 
 		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 		// Client activity
@@ -465,8 +544,8 @@ require(
 		var scoreWindowTimeLength=40000; //ms
 		var pixelShiftPerMs=1*theCanvas.width/(scoreWindowTimeLength);
 		var pxPerSec=pixelShiftPerMs*1000;
-		var nowLinePx=1*theCanvas.width/3;
-		var pastLinePx=-20; // after which we delete the display elements
+		var nowLinePx=1; //1*theCanvas.width/3;
+		var pastLinePx=-20; //-20; // after which we delete the display elements
 
 		var sprocketHeight=2;
 		var sprocketWidth=1;
@@ -596,8 +675,9 @@ require(
 			//---------------------------------------------------------------
  
  			// Draw scrolling sprockets--
- 			context.fillStyle = "#999999";
- 			var sTime = (elapsedtime+scoreWindowTimeLength*(2/3))- (elapsedtime+scoreWindowTimeLength*(2/3))%sprocketInterval;
+ 			context.fillStyle = "#b2b2b2";
+ 			//var sTime = (elapsedtime+scoreWindowTimeLength*(2/3))- (elapsedtime+scoreWindowTimeLength*(2/3))%sprocketInterval;
+ 			var sTime = (elapsedtime+scoreWindowTimeLength) - (elapsedtime+scoreWindowTimeLength)%sprocketInterval;
  			//console.log("sprocket stime: " + sTime);
 			var sPx= time2Px(sTime);
 			//console.log("t since origin is " + t_sinceOrigin + ", and sTime is " + sTime);
@@ -607,7 +687,7 @@ require(
 				sPx-=pixelShiftPerMs*sprocketInterval;
 			}
 			var disTime=sTime-(sTime%5000);
-			context.font="7px Verdana";
+			context.font="5px Verdana";
 			while (disTime >=(sTime-scoreWindowTimeLength)){
 				context.fillText(disTime/1000,time2Px(disTime),10);
 				//console.log("write disTime= " + disTime);
@@ -618,8 +698,9 @@ require(
 			// Draw DescX lines if necessary
 			if (descXButton.toggleState===1){
 				context.lineWidth =1;
-				context.strokeStyle = "#333";
-				sTime = (elapsedtime+scoreWindowTimeLength*(2/3))- (elapsedtime+scoreWindowTimeLength*(2/3))%(descXMsInterval);
+				context.strokeStyle = "#b2b2b2";
+				//sTime = (elapsedtime+scoreWindowTimeLength*(2/3))- (elapsedtime+scoreWindowTimeLength*(2/3))%(descXMsInterval);
+				sTime = (elapsedtime+scoreWindowTimeLength)- (elapsedtime+scoreWindowTimeLength)%(descXMsInterval);
 				//console.log("descX sTime: " + sTime);
 				//console.log(" ");
 				var start_sPx= time2Px(sTime);
@@ -653,7 +734,7 @@ require(
 			// Draw DescY lines if necessary
 			if (descYButton.toggleState===1){
 				context.lineWidth =1;
-				context.strokeStyle = "#333";
+				context.strokeStyle = "#b2b2b2";
 				descYInterval=1*theCanvas.height / numTracks;
 				descYInterval=1*theCanvas.height/descYSlider.value;
 				for (var i=1;i<descYSlider.value;i++){
@@ -675,7 +756,7 @@ require(
 
 				if (t_end < pastLinePx) {
 					// remove event from display list
-					//console.log("deleting element at time " + displayElements[dispElmt].e);
+					console.log("deleting element at time " + displayElements[dispElmt].e);
 					displayElements[dispElmt].destroy();
 					displayElements.splice(dispElmt,1);
 
@@ -688,15 +769,15 @@ require(
 
 
 					// If element is just crossing the "now" line, create little visual explosion
-					if (nowishP(dispe.d[0][0])){					
-						explosion(time2Px(dispe.d[0][0]), dispe.d[0][1], 5, "#FF0000", 3, "#FFFFFF");
+					//if (nowishP(dispe.d[0][0])){					
+					//	explosion(time2Px(dispe.d[0][0]), dispe.d[0][1], 5, "#FF0000", 3, "#FFFFFF");
 
-					} 
+					//} 
 				}
 			}
 
 			// draw the "now" line
-			context.strokeStyle = "#FF0000";	
+			context.strokeStyle = "#3dbe93";	
 			context.lineWidth =1;
 			context.beginPath();					
 			context.moveTo(nowLinePx, 0);
@@ -796,6 +877,9 @@ require(
 				current_mgesture=scoreEvent("textEvent");
 				current_mgesture.enableEditing(); // enable since it's our own for typing into
 				current_mgesture.d=[[t,y,z]];
+				current_mgesture.color=colorIDMap[myID];
+				current_mgesture.textVoice=voiceIDMap[myID];
+				console.log("setting voice " + voiceIDMap[myID])
 
 				// calculate the length of the text box on the canvas
 				//current_mgesture.d.push([t + pxTimeSpan(context.measureText(m_tTab.currentSelection()).width),y,z]);
