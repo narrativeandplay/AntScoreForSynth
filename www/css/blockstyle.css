@@ -115,13 +115,21 @@ html, body
     }
 #block3c {
         background-color: white;
-        width: 52%;
+        width: 0%;
         height: 100%; 
         float: left; 
     }
 #block3d {
-        background-color: white;
-        width: 20%;
+        background-color: #eeeeee;
+        width: 36%;
+        height: 100%; 
+        float: left; 
+        overflow: visible;
+        font-family: "Courier New", Courier, monospace;
+    }
+#block3e {
+        background-color: #eeeeee;
+        width: 36%;
         height: 100%; 
         float: left; 
         overflow: visible;

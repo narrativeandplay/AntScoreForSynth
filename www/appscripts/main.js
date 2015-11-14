@@ -535,6 +535,11 @@ block4c1
 		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 		// Client activity
 		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+		//
+		// scrolling canvas
+		//
+
 		var theCanvas = document.getElementById("score");
 		var context = theCanvas.getContext("2d");
 		var mouseX;
@@ -751,28 +756,34 @@ block4c1
 			var t_end; 
 			for(dispElmt=displayElements.length-1;dispElmt>=0;dispElmt--){ // run through in reverse order so we can splice the array to remove long past elements
 
-				// If its moved out of our score window, delete it from the display list
-				t_end=time2Px(displayElements[dispElmt].e);
+				if(!displayElements[dispElmt].scratch) {
 
-				if (t_end < pastLinePx) {
-					// remove event from display list
-					console.log("deleting element at time " + displayElements[dispElmt].e);
-					displayElements[dispElmt].destroy();
-					displayElements.splice(dispElmt,1);
+					// If its moved out of our score window, delete it from the display list
+					t_end=time2Px(displayElements[dispElmt].e);
 
-				} else{
+					if (t_end < pastLinePx) {
+						// remove event from display list if not on a scratch display
+						console.log("deleting element at time " + displayElements[dispElmt].e);
+						displayElements[dispElmt].destroy();
+						displayElements.splice(dispElmt,1);
 
-					var dispe = displayElements[dispElmt];	
+					} else{
 
-					//console.log("draw event of type " + dispe.type);				
-					dispe.draw(context, time2Px, nowishP, t_sinceOrigin);
+						var dispe = displayElements[dispElmt];	
+
+						//console.log("draw event of type " + dispe.type);				
+						dispe.draw(context, time2Px, nowishP, t_sinceOrigin);
 
 
-					// If element is just crossing the "now" line, create little visual explosion
-					//if (nowishP(dispe.d[0][0])){					
-					//	explosion(time2Px(dispe.d[0][0]), dispe.d[0][1], 5, "#FF0000", 3, "#FFFFFF");
+						// If element is just crossing the "now" line, create little visual explosion
+						//if (nowishP(dispe.d[0][0])){					
+						//	explosion(time2Px(dispe.d[0][0]), dispe.d[0][1], 5, "#FF0000", 3, "#FFFFFF");
 
-					//} 
+						//} 
+					}
+				} else {
+						var dispe = displayElements[dispElmt];	
+						dispe.myDraw(dispe.isPublic ? publicScratchContext : privateScratchContext, dispe.d[0][0], dispe.d[0][1]);
 				}
 			}
 
@@ -1097,6 +1108,45 @@ block4c1
    		 })
 */
 
+		//
+		// scratch areas
+		//
+
+		// public
+		var thePublicScratchCanvas = document.getElementById("publicScratch");
+		var publicScratchContext = thePublicScratchCanvas.getContext("2d");
+		publicScratchContext.font="9px Arial";
+		thePublicScratchCanvas.addEventListener("mousedown", onMouseDownScratch, false);
+
+		// private
+		var thePrivateScratchCanvas = document.getElementById("privateScratch");
+		var privateScratchContext = thePrivateScratchCanvas.getContext("2d");
+		privateScratchContext.font="9px Arial";
+		thePrivateScratchCanvas.addEventListener("mousedown", onMouseDownScratch, false);
+
+		function onMouseDownScratch(e){
+			event.preventDefault();
+			var isPublic = (e.target==thePublicScratchCanvas);
+			var thisCanvas = isPublic ? thePublicScratchCanvas : thePrivateScratchCanvas;
+			var m = utils.getCanvasMousePosition(thisCanvas, e);
+			var x=m.x;
+			var y=m.y;
+
+			console.log("mouse down on scratch (public? "+isPublic+"): x="+x+", y="+y)
+
+			var new_mgesture=scoreEvent(isPublic ? "publicScratchTextEvent" : "privateScratchTextEvent");
+			new_mgesture.enableEditing(); // enable since it's our own for typing into
+			new_mgesture.d=[[x,y,0]];
+			new_mgesture.color=colorIDMap[myID];
+			new_mgesture.textVoice=voiceIDMap[myID];
+			//new_mgesture.myDraw(isPublic ? publicScratchContext : privateScratchContext, x, y);
+			new_mgesture.s= myID;
+			new_mgesture.e= 10000;
+			new_mgesture.scratch=true;
+			displayElements.push(new_mgesture);
+
+			//comm.sendJSONmsg("beginGesture", {"d":[[t,y,z]], "type": "textEvent", "gID": current_mgesture.gID, "cont": false, "fields": current_mgesture.getKeyFields() });
+		}
 
 		// INITIALIZATIONS --------------------
 		radioContour.checked=true; // initialize
