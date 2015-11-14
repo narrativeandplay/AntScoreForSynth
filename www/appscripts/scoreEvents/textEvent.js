@@ -2,12 +2,22 @@ define(
 	["scoreEvents/genericScoreEvent"],
 	function (generalScoreEvent) {
 
-      return function (i_arg){
+      return function (in_type, i_arg){
+        var offer_type = in_type; // can be live (0), public (1) or private (2)
+        console.log("in_type: " + in_type);
+
         var sendImmediately = true;
 
          var textBox=document.createElement("input");
          textBox.className="textBox1"
-         var scoreElmt=document.getElementById("block1b");
+         var scoreElmt;
+         if(offer_type==0) {
+           scoreElmt=document.getElementById("block1b");
+         } else if(offer_type==1){
+           scoreElmt=document.getElementById("block3d");
+         } else {
+           scoreElmt=document.getElementById("block3e");
+         }
 
          // remember the chat area (the "script") and sound state button
          var theScript = document.getElementById("publicChatArea");

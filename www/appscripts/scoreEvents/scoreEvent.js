@@ -1,6 +1,6 @@
 define(
-   ["scoreEvents/pitchEvent", "scoreEvents/rhythmEvent", "scoreEvents/chordEvent",  "scoreEvents/contourEvent", "scoreEvents/sprayEvent", "scoreEvents/textEvent", "scoreEvents/scratchTextEvent", "scoreEvents/genericScoreEvent"],
-   function (pitchEvent, rhythmEvent, chordEvent, contourEvent, sprayEvent, textEvent, scratchTextEvent, genericScoreEvent) {
+   ["scoreEvents/pitchEvent", "scoreEvents/rhythmEvent", "scoreEvents/chordEvent",  "scoreEvents/contourEvent", "scoreEvents/sprayEvent", "scoreEvents/textEvent", "scoreEvents/genericScoreEvent"],
+   function (pitchEvent, rhythmEvent, chordEvent, contourEvent, sprayEvent, textEvent, genericScoreEvent) {
       return function (i_type, arg){
  
          switch(i_type){
@@ -20,13 +20,13 @@ define(
                return sprayEvent(arg);
                break;
             case "textEvent":
-               return textEvent(arg);
+               return textEvent(0, arg);
                break;
             case "publicScratchTextEvent":
-               return scratchTextEvent(true, arg);
+               return textEvent(1, arg);
                break;
             case "privateScratchTextEvent":
-               return scratchTextEvent(false, arg);
+               return textEvent(2, arg);
                break;
             default: 
          }

@@ -411,6 +411,10 @@ require(
 
 			current_remoteEvent[src].soundbank=soundbank;
 
+			// check this is a scratch event
+			if(data.scratch) {
+				current_remoteEvent[src].scratch=data.scratch;
+			}
 
 			displayElements.push(current_remoteEvent[src]);
 
@@ -1128,24 +1132,23 @@ block4c1
 			event.preventDefault();
 			var isPublic = (e.target==thePublicScratchCanvas);
 			var thisCanvas = isPublic ? thePublicScratchCanvas : thePrivateScratchCanvas;
+			var thisEventType = isPublic ? "publicScratchTextEvent" : "privateScratchTextEvent";
 			var m = utils.getCanvasMousePosition(thisCanvas, e);
 			var x=m.x;
 			var y=m.y;
 
 			console.log("mouse down on scratch (public? "+isPublic+"): x="+x+", y="+y)
 
-			var new_mgesture=scoreEvent(isPublic ? "publicScratchTextEvent" : "privateScratchTextEvent");
+			var new_mgesture=scoreEvent(thisEventType);
 			new_mgesture.enableEditing(); // enable since it's our own for typing into
 			new_mgesture.d=[[x,y,0]];
 			new_mgesture.color=colorIDMap[myID];
 			new_mgesture.textVoice=voiceIDMap[myID];
-			//new_mgesture.myDraw(isPublic ? publicScratchContext : privateScratchContext, x, y);
 			new_mgesture.s= myID;
-			new_mgesture.e= 10000;
 			new_mgesture.scratch=true;
 			displayElements.push(new_mgesture);
 
-			//comm.sendJSONmsg("beginGesture", {"d":[[t,y,z]], "type": "textEvent", "gID": current_mgesture.gID, "cont": false, "fields": current_mgesture.getKeyFields() });
+			comm.sendJSONmsg("beginGesture", {"d":[[x,y,0]], "type": thisEventType, "scratch" : true, "gID": new_mgesture.gID, "cont": false, "fields": new_mgesture.getKeyFields() });
 		}
 
 		// INITIALIZATIONS --------------------
