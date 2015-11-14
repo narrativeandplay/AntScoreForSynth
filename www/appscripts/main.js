@@ -602,6 +602,10 @@ block4c1
       	theCanvas.addEventListener("touchend", touch2Mouse.touchHandler, true);
       	theCanvas.addEventListener("touchcancel", touch2Mouse.touchHandler, true);    
 
+      	// support dropping of text events
+		document.getElementById("block1b").ondrop=dropTextEvent;
+		document.getElementById("block1b").ondragover=dragTextEvent;
+
 
 		drawScreen(0);
 
@@ -891,6 +895,7 @@ block4c1
 				//current_mgesture=scoreEvent("textEvent", m_tTab.currentSelection());
 				current_mgesture=scoreEvent("textEvent");
 				current_mgesture.enableEditing(); // enable since it's our own for typing into
+				current_mgesture.enableDragging(); // enable since it's our own 
 				current_mgesture.d=[[t,y,z]];
 				current_mgesture.color=colorIDMap[myID];
 				current_mgesture.textVoice=voiceIDMap[myID];
@@ -1117,16 +1122,47 @@ block4c1
 		//
 
 		// public
+		var thePublicScratchDiv = document.getElementById("block3d");
 		var thePublicScratchCanvas = document.getElementById("publicScratch");
 		var publicScratchContext = thePublicScratchCanvas.getContext("2d");
 		publicScratchContext.font="9px Arial";
 		thePublicScratchCanvas.addEventListener("mousedown", onMouseDownScratch, false);
+		thePublicScratchDiv.ondrop=dropTextEvent;
+		thePublicScratchDiv.ondragover=dragTextEvent;
 
 		// private
+		var thePrivateScratchDiv = document.getElementById("block3e");
 		var thePrivateScratchCanvas = document.getElementById("privateScratch");
 		var privateScratchContext = thePrivateScratchCanvas.getContext("2d");
 		privateScratchContext.font="9px Arial";
 		thePrivateScratchCanvas.addEventListener("mousedown", onMouseDownScratch, false);
+		thePrivateScratchDiv.ondrop=dropTextEvent;
+		thePrivateScratchDiv.ondragover=dragTextEvent;
+
+		// dragging of text events
+		function dropTextEvent(ev) {
+			ev.preventDefault();
+			var data = parseInt(ev.dataTransfer.getData("textbox")); // data is the GID
+
+			var foo = findElmt(displayElements, myID, data);
+			if(foo) {
+				// delete
+				if(foo.isPublic) {
+					// for any public offers, delete remotely
+	            	comm.sendJSONmsg("delete", {"gID": data, "text": foo.text});
+	            }
+				foo.destroy();
+				displayElements.splice(findElmtIndex(displayElements, myID, data),1);
+
+				// and add to the new location
+			}
+
+			//ev.target.appendChild(data);
+			console.log("ondrop: "+data) 
+		}
+		function dragTextEvent(ev) {
+		  ev.preventDefault();
+		}
 
 		function onMouseDownScratch(e){
 			event.preventDefault();
@@ -1141,6 +1177,7 @@ block4c1
 
 			var new_mgesture=scoreEvent(thisEventType);
 			new_mgesture.enableEditing(); // enable since it's our own for typing into
+			new_mgesture.enableDragging(); // enable since it's our own 
 			new_mgesture.d=[[x,y,0]];
 			new_mgesture.color=colorIDMap[myID];
 			new_mgesture.textVoice=voiceIDMap[myID];
@@ -1148,7 +1185,9 @@ block4c1
 			new_mgesture.scratch=true;
 			displayElements.push(new_mgesture);
 
-			comm.sendJSONmsg("beginGesture", {"d":[[x,y,0]], "type": thisEventType, "scratch" : true, "gID": new_mgesture.gID, "cont": false, "fields": new_mgesture.getKeyFields() });
+			if (isPublic) {
+				comm.sendJSONmsg("beginGesture", {"d":[[x,y,0]], "type": thisEventType, "scratch" : true, "gID": new_mgesture.gID, "cont": false, "fields": new_mgesture.getKeyFields() });
+			}
 		}
 
 		// INITIALIZATIONS --------------------

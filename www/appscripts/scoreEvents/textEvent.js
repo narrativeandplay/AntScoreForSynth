@@ -6,7 +6,8 @@ define(
         var offer_type = in_type; // can be live (0), public (1) or private (2)
         console.log("in_type: " + in_type);
 
-        var sendImmediately = true;
+        var sendImmediately = true; // should changes by sent on keystroke?
+        var isPublic = true;        // are changes public?
 
          var textBox=document.createElement("input");
          textBox.className="textBox1"
@@ -17,6 +18,7 @@ define(
            scoreElmt=document.getElementById("block3d");
          } else {
            scoreElmt=document.getElementById("block3e");
+           isPublic = false;
          }
 
          // remember the chat area (the "script") and sound state button
@@ -29,28 +31,8 @@ define(
          scoreElmt.appendChild(textBox);
          textBox.focus();
 
-        // drag and drop
-        textBox.draggable=true;
-        textBox.ondragstart=function(ev) {
-          ev.dataTransfer.setData("textbox", this);
-          console.log("ondragstart") 
-        }
-
-        // on drop: 
-
-/*
-        scoreElmt.ondrop=function(ev) {
-          ev.preventDefault();
-          var data = ev.dataTransfer.getData("textbox");
-          ev.target.appendChild(data);
-          console.log("ondrop: "+data) 
-        }
-        scoreElmt.ondragover=function(ev) {
-            ev.preventDefault();
-        }
-*/
-
          var m_scoreEvent=generalScoreEvent("textEvent");
+         m_scoreEvent.isPublic=isPublic;
          m_scoreEvent.head="text";
          m_scoreEvent.tail=false;
 
@@ -59,6 +41,17 @@ define(
          m_textHeight=12;
 
          textBox.style.fontSize="18pt";
+
+        m_scoreEvent.enableDragging= function(){
+          // drag and drop
+          textBox.draggable=true;
+
+          // start dragging
+          textBox.ondragstart=function(ev) {
+            ev.dataTransfer.setData("textbox", m_scoreEvent.gID);
+            console.log("ondragstart") 
+          }
+        }
 
         m_scoreEvent.enableEditing= function(){
           textBox.readOnly = false;
@@ -87,7 +80,6 @@ define(
           var charCode = (evt.which) ? evt.which : event.keyCode;
           console.log("in onkeydown, on keypress m_scoreEvent.text = " + m_scoreEvent.text + ", key=" + evt.keyIdentifier);
           if (charCode==8 && textBox.value.length==0) {
-            //console.log("now we should delete*******");
             deleteFlag=true;
           } else {
             deleteFlag=false;
@@ -101,12 +93,11 @@ define(
           console.log("in onkeyup, on keypress m_scoreEvent.text = " + m_scoreEvent.text + ", key=" + evt.keyIdentifier);
           if (deleteFlag===true) {
             // really delete
-            //console.log("delete*******");
             m_scoreEvent.comm.sendJSONmsg("delete", {"gID": m_scoreEvent.gID, "text": m_scoreEvent.text});
             m_scoreEvent.destroy();
             destroyed=true;
           } else {
-            if(sendImmediately||evt.keyIdentifier==="Enter") {
+            if((sendImmediately||evt.keyIdentifier==="Enter") && isPublic) {
               m_scoreEvent.comm.sendJSONmsg("update", {"gID": m_scoreEvent.gID, "text": m_scoreEvent.text});
             }
           }
