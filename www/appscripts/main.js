@@ -603,8 +603,9 @@ block4c1
       	theCanvas.addEventListener("touchcancel", touch2Mouse.touchHandler, true);    
 
       	// support dropping of text events
-		document.getElementById("block1b").ondrop=dropTextEvent;
-		document.getElementById("block1b").ondragover=dragTextEvent;
+      	var theScoreDiv=document.getElementById("block1b");
+      	theScoreDiv.ondrop=dropTextEvent;
+		theScoreDiv.ondragover=dragTextEvent;
 
 
 		drawScreen(0);
@@ -892,7 +893,6 @@ block4c1
 			} 
 
 			if (radioSelection==='text'){
-				//current_mgesture=scoreEvent("textEvent", m_tTab.currentSelection());
 				current_mgesture=scoreEvent("textEvent");
 				current_mgesture.enableEditing(); // enable since it's our own for typing into
 				current_mgesture.enableDragging(); // enable since it's our own 
@@ -900,14 +900,7 @@ block4c1
 				current_mgesture.color=colorIDMap[myID];
 				current_mgesture.textVoice=voiceIDMap[myID];
 				console.log("setting voice " + voiceIDMap[myID])
-
-				// calculate the length of the text box on the canvas
-				//current_mgesture.d.push([t + pxTimeSpan(context.measureText(m_tTab.currentSelection()).width),y,z]);
-
-				// send WHLE GESTRE AT ONCE (no need to send updated data in real time )
-				//comm.sendJSONmsg("beginGesture", {"d":[[t,y,z]], "type": "textEvent", "cont": false, "fields": {"text": m_tTab.currentSelection()} });
 				comm.sendJSONmsg("beginGesture", {"d":[[t,y,z]], "type": "textEvent", "gID": current_mgesture.gID, "cont": false, "fields": current_mgesture.getKeyFields() });
-
 			}
 
 			if (radioSelection==='pitch'){
@@ -1154,7 +1147,21 @@ block4c1
 				foo.destroy();
 				displayElements.splice(findElmtIndex(displayElements, myID, data),1);
 
-				// and add to the new location
+				// and add to the new location 
+				if(ev.target==theCanvas) {
+					// dropping on the score
+					var m = utils.getCanvasMousePosition(theCanvas, ev);
+					initiateContour(m.x, m.y);
+
+					// and need to set the text
+				} else {
+					// dropping on the scratch canvases
+					onMouseDownScratch(ev);
+
+					// and need to set the text
+
+					// try: set current_mgesture, and use that?
+				}
 			}
 
 			//ev.target.appendChild(data);
@@ -1172,9 +1179,10 @@ block4c1
 			var m = utils.getCanvasMousePosition(thisCanvas, e);
 			var x=m.x;
 			var y=m.y;
+			createScratchTextEvent(x, y, isPublic, thisEventType);
+		}
 
-			console.log("mouse down on scratch (public? "+isPublic+"): x="+x+", y="+y)
-
+		function createScratchTextEvent(x, y, isPublic, thisEventType) {
 			var new_mgesture=scoreEvent(thisEventType);
 			new_mgesture.enableEditing(); // enable since it's our own for typing into
 			new_mgesture.enableDragging(); // enable since it's our own 
