@@ -20,7 +20,13 @@ define(
                return sprayEvent(arg);
                break;
             case "textEvent":
-               return textEvent(arg);
+               return textEvent(0, arg);
+               break;
+            case "publicScratchTextEvent":
+               return textEvent(1, arg);
+               break;
+            case "privateScratchTextEvent":
+               return textEvent(2, arg);
                break;
             default: 
          }

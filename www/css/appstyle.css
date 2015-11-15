@@ -182,6 +182,22 @@ color:white;
 
 }
 
+#publicScratch {
+	
+	width: 99.5%;
+	height:97%;
+	border:1px solid #b2b2b2;
+
+}
+
+#privateScratch {
+
+	width: 99.5%;
+	height:97%;
+	border:1px solid #b2b2b2;
+
+}
+
 .radioSelect {
 	padding-bottom: 3%;
 
@@ -261,6 +277,10 @@ color:white;
 #timeLockButton {
 	color: white;
 	z-index: 1;
+}
+
+#voice{
+		width: 98%;
 }
 
 #timeLockSlider {
