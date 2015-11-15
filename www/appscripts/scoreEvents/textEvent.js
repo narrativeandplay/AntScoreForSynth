@@ -40,16 +40,18 @@ define(
 
          m_textHeight=12;
 
-         textBox.style.fontSize="18pt";
+         textBox.style.fontSize="14pt";
 
         m_scoreEvent.enableDragging= function(){
           // drag and drop
           textBox.draggable=true;
 
-          // start dragging
+          // start dragging: save the gID and the mouse offset
           textBox.ondragstart=function(ev) {
-            ev.dataTransfer.setData("textbox", m_scoreEvent.gID);
-            console.log("ondragstart") 
+            ev.dataTransfer.setData("textbox", m_scoreEvent.gID+","+
+              (ev.clientX-parseInt(textBox.style.left))+","+
+              (ev.clientY-parseInt(textBox.style.top)));
+            console.log("ondragstart: ("+ev.clientX+", "+ev.clientY+"), ("+textBox.style.left+", "+textBox.style.top+")"); 
           }
         }
 

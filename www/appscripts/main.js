@@ -1135,26 +1135,32 @@ block4c1
 		// dragging of text events
 		function dropTextEvent(ev) {
 			ev.preventDefault();
-			var data = parseInt(ev.dataTransfer.getData("textbox")); // data is the GID
+		    var data = ev.dataTransfer.getData("textbox").split(','); // data is "gID, xOffset, yOffset"
+			var data_gID = parseInt(data[0]); 
+			var data_xOffset = parseInt(data[1]); 
+			var data_yOffset = parseInt(data[2]); 
+			var m = utils.getCanvasMousePosition(ev.target, ev);
+			var n = utils.scaleToCanvas(ev.target, data_xOffset, data_yOffset);
+			var actualX = m.x-n.x;
+			var actualY = m.y-n.y;
 
-			var foo = findElmt(displayElements, myID, data);
+			var foo = findElmt(displayElements, myID, data_gID);
 			if(foo) {
 				// delete
 				if(foo.isPublic) {
 					// for any public offers, delete remotely
-	            	comm.sendJSONmsg("delete", {"gID": data, "text": foo.text});
+	            	comm.sendJSONmsg("delete", {"gID": data_gID, "text": foo.text});
 	            }
 				foo.destroy();
-				displayElements.splice(findElmtIndex(displayElements, myID, data),1);
+				displayElements.splice(findElmtIndex(displayElements, myID, data_gID),1);
 
 				// and add to the new location 
 				if(ev.target==theCanvas) {
 					// dropping on the score
-					var m = utils.getCanvasMousePosition(theCanvas, ev);
-					initiateContour(m.x, m.y);
+					initiateContour(actualX, actualY);
 				} else {
 					// dropping on the scratch canvases
-					onMouseDownScratch(ev);
+					createScratchTextEvent(actualX, actualY, ev.target);
 				}
 
 				// and send the content
@@ -1171,16 +1177,14 @@ block4c1
 
 		function onMouseDownScratch(e){
 			event.preventDefault();
-			var isPublic = (e.target==thePublicScratchCanvas);
-			var thisCanvas = isPublic ? thePublicScratchCanvas : thePrivateScratchCanvas;
-			var thisEventType = isPublic ? "publicScratchTextEvent" : "privateScratchTextEvent";
-			var m = utils.getCanvasMousePosition(thisCanvas, e);
-			var x=m.x;
-			var y=m.y;
-			createScratchTextEvent(x, y, isPublic, thisEventType);
+			var m = utils.getCanvasMousePosition(e.target, e);
+			createScratchTextEvent(m.x, m.y, e.target);
 		}
 
-		function createScratchTextEvent(x, y, isPublic, thisEventType) {
+		function createScratchTextEvent(x, y, targetCanvas) {
+			var isPublic = (targetCanvas==thePublicScratchCanvas);
+			var thisEventType = isPublic ? "publicScratchTextEvent" : "privateScratchTextEvent";
+
 			current_mgesture=scoreEvent(thisEventType);
 			current_mgesture.enableEditing(); // enable since it's our own for typing into
 			current_mgesture.enableDragging(); // enable since it's our own 

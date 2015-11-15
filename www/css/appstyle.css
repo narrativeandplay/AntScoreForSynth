@@ -279,6 +279,10 @@ color:white;
 	z-index: 1;
 }
 
+#voice{
+		width: 98%;
+}
+
 #timeLockSlider {
 	width: 100%;
 }

@@ -39,6 +39,14 @@ define(
                 };
             }
 
+            utils.scaleToCanvas = function (canvas, in_x, in_y) {
+                var bbox = canvas.getBoundingClientRect();
+                return {
+                    x: in_x*(canvas.width/bbox.width),
+                    y: in_y*(canvas.height/bbox.height)
+                };
+            }
+
            function byte2Hex(n)
             {
                 var nybHexString = "0123456789ABCDEF";
