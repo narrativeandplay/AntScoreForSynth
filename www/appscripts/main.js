@@ -1152,16 +1152,14 @@ block4c1
 					// dropping on the score
 					var m = utils.getCanvasMousePosition(theCanvas, ev);
 					initiateContour(m.x, m.y);
-
-					// and need to set the text
 				} else {
 					// dropping on the scratch canvases
 					onMouseDownScratch(ev);
-
-					// and need to set the text
-
-					// try: set current_mgesture, and use that?
 				}
+
+				// and send the content
+				current_mgesture.setText(myID, foo.text);
+	            comm.sendJSONmsg("update", {"gID": current_mgesture.gID, "text": current_mgesture.text});
 			}
 
 			//ev.target.appendChild(data);
@@ -1183,18 +1181,19 @@ block4c1
 		}
 
 		function createScratchTextEvent(x, y, isPublic, thisEventType) {
-			var new_mgesture=scoreEvent(thisEventType);
-			new_mgesture.enableEditing(); // enable since it's our own for typing into
-			new_mgesture.enableDragging(); // enable since it's our own 
-			new_mgesture.d=[[x,y,0]];
-			new_mgesture.color=colorIDMap[myID];
-			new_mgesture.textVoice=voiceIDMap[myID];
-			new_mgesture.s= myID;
-			new_mgesture.scratch=true;
-			displayElements.push(new_mgesture);
+			current_mgesture=scoreEvent(thisEventType);
+			current_mgesture.enableEditing(); // enable since it's our own for typing into
+			current_mgesture.enableDragging(); // enable since it's our own 
+			current_mgesture.d=[[x,y,0]];
+			current_mgesture.color=colorIDMap[myID];
+			current_mgesture.textVoice=voiceIDMap[myID];
+			current_mgesture.s= myID;
+			current_mgesture.scratch=true;
+			displayElements.push(current_mgesture);
 
+			// send to others only if target is public
 			if (isPublic) {
-				comm.sendJSONmsg("beginGesture", {"d":[[x,y,0]], "type": thisEventType, "scratch" : true, "gID": new_mgesture.gID, "cont": false, "fields": new_mgesture.getKeyFields() });
+				comm.sendJSONmsg("beginGesture", {"d":[[x,y,0]], "type": thisEventType, "scratch" : true, "gID": current_mgesture.gID, "cont": false, "fields": current_mgesture.getKeyFields() });
 			}
 		}
 
