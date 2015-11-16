@@ -132,6 +132,14 @@ require(
 			}
 		}
 
+		var timeResetButton = window.document.getElementById("timeResetButton");
+		timeResetButton.onclick=function(){
+			var elapsedtime=getScoreTime();
+			var sTime = (elapsedtime+scoreWindowTimeLength) - (elapsedtime+scoreWindowTimeLength)%sprocketInterval;
+			displayTimeOffset=elapsedtime - elapsedtime%5000;
+			console.log("reset time: displayTimeOffset="+displayTimeOffset);
+		}
+
 		var timeLockSlider = window.document.getElementById("timeLockSlider");
 	
 
@@ -555,12 +563,13 @@ block4c1
 		var pxPerSec=pixelShiftPerMs*1000;
 		var nowLinePx=1; //1*theCanvas.width/3;
 		var pastLinePx=-20; //-20; // after which we delete the display elements
+		var displayTimeOffset=0; // use this to reset the time display (doesn't impact anything else)
 
 		var sprocketHeight=2;
 		var sprocketWidth=1;
 		var sprocketInterval=1000; //ms
 
-		var numTracks = 4;
+		var numTracks = 2;
 		var trackHeight=1*theCanvas.height / numTracks;
 		var trackY =[]; // array of y-values (pixels) that devide each track on the score
 		for (var i=0;i<numTracks;i++){
@@ -701,10 +710,18 @@ block4c1
 				sPx-=pixelShiftPerMs*sprocketInterval;
 			}
 			var disTime=sTime-(sTime%5000);
+			console.log("write disTime= " + disTime);
 			context.font="5px Verdana";
 			while (disTime >=(sTime-scoreWindowTimeLength)){
-				context.fillText(disTime/1000,time2Px(disTime),10);
-				//console.log("write disTime= " + disTime);
+				var disTimeSec = (disTime-displayTimeOffset)/1000;
+				var disTimeMod = disTimeSec % 60;
+				var disTimeString;
+				if(disTimeMod == 0) {
+					disTimeString = disTimeSec / 60 + " min";
+				} else {
+					disTimeString = disTimeMod + " sec";
+				}
+				context.fillText(disTimeString,time2Px(disTime),10);
 				disTime-=5000;
 			}
 			context.font="9px Arial";
@@ -733,10 +750,10 @@ block4c1
 					//sPx-=pixelShiftPerMs*descXMsInterval;
 				}
 			}
-			/*
+			
 			//------------
 			//draw track lines
-			context.strokeStyle = "#444";	
+			context.strokeStyle = "#eeeeee";	
 			context.lineWidth =1;			
 			for (var i=1;i<numTracks;i++){
 				context.beginPath();
@@ -744,7 +761,7 @@ block4c1
 				context.lineTo(1*theCanvas.width, trackY[i]);
 				context.stroke();
 			}
-			*/
+			
 			// Draw DescY lines if necessary
 			if (descYButton.toggleState===1){
 				context.lineWidth =1;

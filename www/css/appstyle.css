@@ -278,6 +278,14 @@ color:white;
 	color: white;
 	z-index: 1;
 }
+#timeresetbuttondiv {
+        float: right; 
+        padding: 3%;
+        	z-index: 1;
+}
+#timeResetButton {
+	z-index: 1;
+}
 
 #voice{
 		width: 98%;
