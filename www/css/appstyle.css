@@ -316,11 +316,11 @@ color:white;
 }
 #publicChatArea{
 	width: 96%;
-	border:2px solid #0000FF;
+	border:1px solid grey;
 	height: 100%;
 	resize: none;
-	background-color: grey;
-	color: white;
+	background-color: 333333;
+	color: black;
 	padding: 1px;
 	margin: 1px;
 }

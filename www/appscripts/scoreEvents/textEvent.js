@@ -55,6 +55,10 @@ define(
           }
         }
 
+        m_scoreEvent.disableDragging= function(){
+          textBox.draggable=false;
+        }
+
         m_scoreEvent.enableEditing= function(){
           textBox.readOnly = false;
           textBox.style.border="2px solid #d9d9d9";
@@ -115,6 +119,7 @@ define(
             // add to script when the text hits the now line
             if (nowishP(this.d[0][0])){
               this.disableEditing();
+              this.disableDragging();
               this.sayOffer(textBox.value);
             } 
          }

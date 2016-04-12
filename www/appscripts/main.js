@@ -561,7 +561,7 @@ block4c1
 		var scoreWindowTimeLength=40000; //ms
 		var pixelShiftPerMs=1*theCanvas.width/(scoreWindowTimeLength);
 		var pxPerSec=pixelShiftPerMs*1000;
-		var nowLinePx=1; //1*theCanvas.width/3;
+		var nowLinePx=10; //1*theCanvas.width/3;
 		var pastLinePx=-20; //-20; // after which we delete the display elements
 		var displayTimeOffset=0; // use this to reset the time display (doesn't impact anything else)
 
