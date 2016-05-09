@@ -710,7 +710,7 @@ block4c1
 				sPx-=pixelShiftPerMs*sprocketInterval;
 			}
 			var disTime=sTime-(sTime%5000);
-			console.log("write disTime= " + disTime);
+			//console.log("write disTime= " + disTime);
 			context.font="5px Verdana";
 			while (disTime >=(sTime-scoreWindowTimeLength)){
 				var disTimeSec = (disTime-displayTimeOffset)/1000;
