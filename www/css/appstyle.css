@@ -323,6 +323,7 @@ color:white;
 	color: black;
 	padding: 1px;
 	margin: 1px;
+	overflow-y:scroll;
 }
 
 .textBox1 { 

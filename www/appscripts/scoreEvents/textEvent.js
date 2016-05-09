@@ -23,6 +23,7 @@ define(
 
          // remember the chat area (the "script") and sound state button
          var theScript = document.getElementById("publicChatArea");
+         var theScriptParent = document.getElementById("block4c2")
          var toggleSoundButton = document.getElementById("soundToggleButton");
 
         textBox.readOnly = true; // by default - change manually if its our own 
@@ -127,8 +128,14 @@ define(
 
                // move to the "script", but only if the offer has been finalized
                if(textBox.value.length>0 && !destroyed) {
-                  theScript.value+=(textBox.value + "\n");
-                  theScript.scrollTop = theScript.scrollHeight;
+                  var thespan = document. createElement("span");
+                  thespan.style.color=this.color;
+                  thespan.appendChild(document.createTextNode(textBox.value))
+                  thespan.appendChild(document.createElement("br"));
+                  theScript.appendChild(thespan);
+                  //theScript.value+=(textBox.value + "\n");
+                  //theScript.scrollTop = theScript.scrollHeight;
+                  
                   if(toggleSoundButton.state===true ) {
                     if ('speechSynthesis' in window) {
                       var msg = new SpeechSynthesisUtterance(textBox.value);
