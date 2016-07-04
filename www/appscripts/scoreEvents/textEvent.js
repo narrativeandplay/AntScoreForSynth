@@ -141,7 +141,9 @@ define(
                       var theVoice = this.textVoice;
                       if (theVoice) { //voiceSelect.value) {
                         var availableVoices = speechSynthesis.getVoices();
-                        msg.voice = availableVoices.filter(function(thisVoice) { return thisVoice.name === theVoice; })[0]; //voiceSelect.value; })[0];
+                        var selectedVoice = availableVoices.filter(function(thisVoice) { return thisVoice.name === theVoice; })[0]; //voiceSelect.value; })[0];
+                        msg.voiceURI = selectedVoice.voiceURI;
+                        msg.lang = selectedVoice.lang;
                         console.log("Speaking with voice " + this.textVoice)
                       }
                       window.speechSynthesis.speak(msg);
