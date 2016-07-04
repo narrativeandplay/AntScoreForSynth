@@ -139,12 +139,10 @@ define(
                     if ('speechSynthesis' in window) {
                       var msg = new SpeechSynthesisUtterance(textBox.value);
                       var theVoice = this.textVoice;
-                      if (theVoice) { //voiceSelect.value) {
+                      if (theVoice) { 
                         var availableVoices = speechSynthesis.getVoices();
-                        var selectedVoice = availableVoices.filter(function(thisVoice) { return thisVoice.name === theVoice; })[0]; //voiceSelect.value; })[0];
-                        msg.voiceURI = selectedVoice.voiceURI;
-                        msg.lang = selectedVoice.lang;
-                        console.log("Speaking with voice " + this.textVoice)
+                        msg.voice = availableVoices.filter(function(thisVoice) { return thisVoice.name === theVoice; })[0]; //voiceSelect.value; })[0];
+                        console.log("Speaking with voice " + this.textVoice);
                       }
                       window.speechSynthesis.speak(msg);
                     }
