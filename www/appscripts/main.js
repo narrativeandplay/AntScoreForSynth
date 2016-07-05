@@ -1076,7 +1076,8 @@ block4c1
 			while ((t_sinceOrigin-m_lastDisplayTick)>1000){  // can tick more than once if computer went to sleep for a while...
 				m_tickCount++;
 				m_lastDisplayTick += 1000;
-				k_timeDisplayElm.innerHTML=Math.floor(m_lastDisplayTick/1000);
+				var secs = Math.floor(m_lastDisplayTick/1000);
+				k_timeDisplayElm.innerHTML=Math.floor(secs/60) + " min " + secs % 60 + " sec";
 
 				
 				//console.log("displayElements length is " + displayElements.length)
