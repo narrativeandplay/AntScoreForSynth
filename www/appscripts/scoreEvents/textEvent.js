@@ -132,7 +132,7 @@ define(
                if(textBox.value.length>0 && !destroyed) {
                   var thespan = document. createElement("span");
                   thespan.style.color=this.color;
-                  thespan.appendChild(document.createTextNode(textBox.value))
+                  thespan.appendChild(document.createTextNode(this.name + ": " + textBox.value))
                   thespan.appendChild(document.createElement("br"));
                   theScript.appendChild(thespan);
                   theScript.scrollTop = theScript.offsetHeight;

@@ -34,7 +34,7 @@ require(
     		myRoom  = userConfig.room;
 			if (myRoom != []) {
 				myRoom.forEach(function(r){
-					console.log("userConfig.report: joing room(s) named " + r); 
+					console.log("userConfig.report: joining room(s) named " + r); 
 					comm.sendJSONmsg("subscribe", [r]);
 					
 				});
@@ -74,6 +74,7 @@ require(
 		}
 
 
+		var nameIDMap=[]; // indexed by client ID
 		var colorIDMap=[]; // indexed by client ID
 		var current_remoteEvent=[]; // indexed by client ID
 
@@ -404,6 +405,7 @@ require(
 			console.log("new begin gesture from src " + src + ", and gID = " + data.gID);
 			current_remoteEvent[src]=scoreEvent(data.type);
 			current_remoteEvent[src].gID=data.gID;
+			current_remoteEvent[src].name=nameIDMap[src];
 			current_remoteEvent[src].color=colorIDMap[src];
 			current_remoteEvent[src].textVoice=voiceIDMap[src];
 			console.log("setting voice " + voiceIDMap[src])
@@ -467,10 +469,20 @@ require(
 				}
 		});
 		//---------------------------------------------------------------------------
+		// set the name
+		comm.registerCallback('setName', function(data, src) {
+			console.log("setName: " + src + ", " + data["name"])
+			nameIDMap[src]=data["name"]; // set name
+		});
 		// set the voice
 		comm.registerCallback('setVoice', function(data, src) {
 			console.log("setVoice: " + src + ", " + data["voice"])
 			voiceIDMap[src]=data["voice"]; // set voice
+		});
+		// set the color
+		comm.registerCallback('setColor', function(data, src) {
+			console.log("setColor: " + src + ", " + data["color"])
+			colorIDMap[src]=data["color"]; // set color
 		});
 		//---------------------------------------------------------------------------
 		// data is [timestamp (relative to "now"), x,y] of mouseContourGesture, and src is the id of the clicking client
@@ -498,26 +510,34 @@ require(
 			displayElements=[];		
 		});
 		//---------------------------------------------------------------------------
-		// Just make a color for displaying future events from the client with the src ID
+		// when a new member joins, send them our colour and voice 
 		comm.registerCallback('newmember', function(data, src) {
 			console.log("new member : " + src);
-			colorIDMap[src]=utils.getRandomColor1(100,255,0,120,100,255);			
+			comm.sendJSONmsg("setName", {"name": nameIDMap[myID]});
+			comm.sendJSONmsg("setVoice", {"voice": voiceIDMap[myID]});
+			comm.sendJSONmsg("setColor", {"color": colorIDMap[myID]});
 		});
 		//---------------------------------------------------------------------------
 		// a list of all members including yourself
 		comm.registerCallback('roommembers', function(data, src) {
 			console.log("In rommembers callback, src (to set myID is " + src);
 			myID=src; /// THIS IS WHERE WE FIRST GET IT.
-			colorIDMap[myID]="#00FF00"; // I am always green
+			nameIDMap[myID]=userConfig.name; // my name
+			colorIDMap[myID]=userConfig.color; // my colour
 			voiceIDMap[myID]=voiceSelect.value; // my voice
-			data.forEach(function(m){
-				if (m != myID){
-					console.log("... " + m + " is also in this room");
-					colorIDMap[m]=utils.getRandomColor1(100,255,0,120,100,255);
-					// should set voices here, for now do randomly
-				} 
-			});
 
+			// send everyone our colour and voice - alex xxx
+			comm.sendJSONmsg("setName", {"name": nameIDMap[myID]});
+			comm.sendJSONmsg("setVoice", {"voice": voiceIDMap[myID]});
+			comm.sendJSONmsg("setColor", {"color": colorIDMap[myID]});
+
+			// data.forEach(function(m){
+			// 	if (m != myID){
+			// 		console.log("... " + m + " is also in this room");
+			// 		colorIDMap[m]=utils.getRandomColor1(100,255,0,120,100,255);
+			// 		// should set voices here, for now do randomly
+			// 	} 
+			// });
 		});
 
 		//---------------------------------------------------------------------------
@@ -527,7 +547,7 @@ require(
 			//pong.call(this, data[1]);
 			myID=data[0];
 			console.log("***********Server acknowledged, assigned me this.id = " + myID);
-			colorIDMap[myID]="#00FF00";
+			colorIDMap[myID]="#00FF00"; // xxx - alex check if this is still used
 
 		});
 
@@ -919,6 +939,7 @@ block4c1
 				current_mgesture.enableEditing(); // enable since it's our own for typing into
 				current_mgesture.enableDragging(); // enable since it's our own 
 				current_mgesture.d=[[t,y,z]];
+				current_mgesture.name=nameIDMap[myID];
 				current_mgesture.color=colorIDMap[myID];
 				current_mgesture.textVoice=voiceIDMap[myID];
 				console.log("setting voice " + voiceIDMap[myID])
@@ -944,7 +965,7 @@ block4c1
 			current_mgesture.updateMaxTime();
 			current_mgesture.s= myID;
 			console.log("setting current_mgesture.s to " + myID);
-			current_mgesture.color="#00FF00";
+			current_mgesture.color=colorIDMap[myID];
 			displayElements.push(current_mgesture);
 		}
 
@@ -1212,6 +1233,7 @@ block4c1
 			current_mgesture.enableEditing(); // enable since it's our own for typing into
 			current_mgesture.enableDragging(); // enable since it's our own 
 			current_mgesture.d=[[x,y,0]];
+			current_mgesture.name=nameIDMap[myID];
 			current_mgesture.color=colorIDMap[myID];
 			current_mgesture.textVoice=voiceIDMap[myID];
 			current_mgesture.s= myID;
