@@ -441,10 +441,12 @@ require(
 		comm.registerCallback('update', function (data, src){
 				var foo = findElmt(displayElements, src, data.gID);
 				//console.log("foo is " + foo);
-				for (fname in data){
-					foo[fname]=data[fname];
-					if (fname === "text"){
-						foo.setText(src, data[fname]);
+				if(foo) {
+					for (fname in data){
+						foo[fname]=data[fname];
+						if (fname === "text"){
+							foo.setText(src, data[fname]);
+						}
 					}
 				}
 		});
@@ -454,11 +456,13 @@ require(
 		comm.registerCallback('delete', function (data, src){
 				var foo = findElmt(displayElements, src, data.gID);
 				console.log("destroy: foo is " + foo);
-				for (fname in data){
-					foo[fname]=data[fname];
-					if (fname === "text"){
-						foo.destroy();
-						displayElements.splice(findElmtIndex(displayElements, src, data.gID),1);
+				if(foo) {
+					for (fname in data){
+						foo[fname]=data[fname];
+						if (fname === "text"){
+							foo.destroy();
+							displayElements.splice(findElmtIndex(displayElements, src, data.gID),1);
+						}
 					}
 				}
 		});

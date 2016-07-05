@@ -98,7 +98,9 @@ define(
           console.log("in onkeyup, on keypress m_scoreEvent.text = " + m_scoreEvent.text + ", key=" + evt.keyIdentifier);
           if (deleteFlag===true) {
             // really delete
-            m_scoreEvent.comm.sendJSONmsg("delete", {"gID": m_scoreEvent.gID, "text": m_scoreEvent.text});
+            if(isPublic) {
+              m_scoreEvent.comm.sendJSONmsg("delete", {"gID": m_scoreEvent.gID, "text": m_scoreEvent.text});
+            }
             m_scoreEvent.destroy();
             destroyed=true;
           } else {
