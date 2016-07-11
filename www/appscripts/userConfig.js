@@ -11,10 +11,18 @@ define(
     var uconfig = {
       "player": undefined,
       "room": [],
+      "name": "",
+      "color": "",
       "gatekey": (gateKeeperFactory(["resourceLoaded"], // after all keys are set(), function will execute
           function(){
             // replace "loading" with "All ready" and make the submit button available
             legend.innerHTML = "Anticipatory Score";
+            inner_div.appendChild(document.createTextNode("Name:"));
+            inner_div.appendChild(name_input);
+            inner_div.appendChild(document.createElement("br"));
+            inner_div.appendChild(document.createTextNode("Colour:"));
+            inner_div.appendChild(color_input);
+            inner_div.appendChild(document.createElement("br"));
             inner_div.appendChild(submit_btn);
           })),
       "report": function(){}
@@ -25,11 +33,20 @@ define(
     var overlay_div = document.createElement("div");
       overlay_div.id = "overlay";
     var inner_div = document.createElement("div");
+      inner_div.style.color="#000000";
     var button_close = document.createElement("button");
     var submit_btn = document.createElement("input");
       submit_btn.type = "button";
       submit_btn.className = "submit";
       submit_btn.value = "Submit";
+    var name_input = document.createElement("input");
+      name_input.type = "text";
+      name_input.className = "name";
+      name_input.value = "Name";
+    var color_input = document.createElement("input");
+        var picker = new jscolor(color_input);
+        picker.fromString("000000");      
+        color_input.className = "color";
     var legend = document.createElement("legend");
  
  //++++++++++++++++++++++++++++++++++++++++++++++++
@@ -134,6 +151,9 @@ define(
             return;
           }
           element.parentNode.removeChild(element);
+
+          uconfig.name=name_input.value;
+          uconfig.color=picker.toHEXString();
 
           uconfig.fire("submit");
           //c_id(); // call the callback when we have our info

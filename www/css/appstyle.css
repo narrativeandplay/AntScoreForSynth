@@ -127,7 +127,7 @@ text-align:center;
 }
 #timeLabelDiv
 {
-color:white;
+color:black;
 	-webkit-user-select: none;
 	user-select: none;
 
@@ -135,7 +135,7 @@ color:white;
 
 #timeDisplayDiv
 {
-color:white;
+color:black;
 	-webkit-user-select: none;
 	user-select: none;
 

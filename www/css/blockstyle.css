@@ -177,6 +177,15 @@ html, body
     float: left;
     padding: 2px;
 }
+#block4c2-spectator{
+    width: 100%;
+    height: 90%;
+    background-color: white;
+    float: left;
+    padding: 2px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 30px;
+}
 #block4d {
         background-color: black;
         width: 20%;

@@ -98,7 +98,9 @@ define(
           console.log("in onkeyup, on keypress m_scoreEvent.text = " + m_scoreEvent.text + ", key=" + evt.keyIdentifier);
           if (deleteFlag===true) {
             // really delete
-            m_scoreEvent.comm.sendJSONmsg("delete", {"gID": m_scoreEvent.gID, "text": m_scoreEvent.text});
+            if(isPublic) {
+              m_scoreEvent.comm.sendJSONmsg("delete", {"gID": m_scoreEvent.gID, "text": m_scoreEvent.text});
+            }
             m_scoreEvent.destroy();
             destroyed=true;
           } else {
@@ -130,7 +132,7 @@ define(
                if(textBox.value.length>0 && !destroyed) {
                   var thespan = document. createElement("span");
                   thespan.style.color=this.color;
-                  thespan.appendChild(document.createTextNode(textBox.value))
+                  thespan.appendChild(document.createTextNode(this.name + ": " + textBox.value))
                   thespan.appendChild(document.createElement("br"));
                   theScript.appendChild(thespan);
                   theScript.scrollTop = theScript.offsetHeight;
@@ -139,12 +141,10 @@ define(
                     if ('speechSynthesis' in window) {
                       var msg = new SpeechSynthesisUtterance(textBox.value);
                       var theVoice = this.textVoice;
-                      if (theVoice) { //voiceSelect.value) {
+                      if (theVoice) { 
                         var availableVoices = speechSynthesis.getVoices();
-                        var selectedVoice = availableVoices.filter(function(thisVoice) { return thisVoice.name === theVoice; })[0]; //voiceSelect.value; })[0];
-                        msg.voiceURI = selectedVoice.voiceURI;
-                        msg.lang = selectedVoice.lang;
-                        console.log("Speaking with voice " + this.textVoice)
+                        msg.voice = availableVoices.filter(function(thisVoice) { return thisVoice.name === theVoice; })[0]; //voiceSelect.value; })[0];
+                        console.log("Speaking with voice " + this.textVoice);
                       }
                       window.speechSynthesis.speak(msg);
                     }
