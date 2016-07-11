@@ -13,18 +13,40 @@ define(
       "room": [],
       "name": "",
       "color": "",
-      "gatekey": (gateKeeperFactory(["resourceLoaded"], // after all keys are set(), function will execute
+      "voice": "",
+      "gatekey": (gateKeeperFactory(["okSoundLoaded","voicesLoaded"], // after all keys are set(), function will execute
           function(){
             // replace "loading" with "All ready" and make the submit button available
-            legend.innerHTML = "Anticipatory Score";
-            inner_div.appendChild(document.createTextNode("Name:"));
+            legend.innerHTML = "Improv Writing";
+            inner_div.appendChild(document.createElement("br"));
+            inner_div.appendChild(document.createTextNode("Character name: "));
             inner_div.appendChild(name_input);
             inner_div.appendChild(document.createElement("br"));
-            inner_div.appendChild(document.createTextNode("Colour:"));
+            inner_div.appendChild(document.createTextNode("Voice: "));
+              // Fetch the available voices.
+            var voices = speechSynthesis.getVoices();
+          
+            // Loop through each of the voices.
+            voices.forEach(function(voice, i) {
+                // Create a new option element.
+              var option = document.createElement('option');
+              
+                // Set the options value and text.
+              option.value = voice.name;
+              option.innerHTML = voice.name;
+                
+                // Add the option to the voice selector.
+              voice_input.appendChild(option);
+            });
+            inner_div.appendChild(voice_input);
+            inner_div.appendChild(document.createElement("br"));
+            inner_div.appendChild(document.createTextNode("Colour: "));
             inner_div.appendChild(color_input);
+            inner_div.appendChild(document.createElement("br"));
             inner_div.appendChild(document.createElement("br"));
             inner_div.appendChild(submit_btn);
           })),
+      "voicelist": [],
       "report": function(){}
     };
 
@@ -43,6 +65,9 @@ define(
       name_input.type = "text";
       name_input.className = "name";
       name_input.value = "Name";
+    var voice_input = document.createElement("select");
+      voice_input.className = "voice";
+      voice_input.value = "Voice";
     var color_input = document.createElement("input");
         var picker = new jscolor(color_input);
         picker.fromString("000000");      
@@ -53,7 +78,7 @@ define(
   var roomdiv = document.createElement("roomdiv");
   roomdiv.type="div";
   roomdiv.id="roomdiv";
-  roomdiv.innerHTML="Join a room?";
+  roomdiv.innerHTML="Room to join:<br/>";
 
   var roomSelector = document.createElement("select");
   roomSelector.multiple=true;
@@ -102,6 +127,9 @@ define(
 
     // The real reason for this sound is that Apple devices require a user-initiated sound before the program can generate sound on its own
     var okSound=sndFactory();
+
+    // load voices
+
     
     //uconfig.report = function(c_id) {
       button_close.id = "upprev_close";
@@ -113,13 +141,13 @@ define(
       inner_div.appendChild(button_close);
    
       legend.id="legend";
-      legend.innerHTML = "Performance <br> Loading ...";
+      legend.innerHTML = "Loading, please wait ...";
       inner_div.appendChild(legend);
 
       inner_div.appendChild(roomdiv);
     // This is a click sound which get the iOs sound flowing
     okSound.on("resourceLoaded",  function(){
-      uconfig.gatekey.set("resourceLoaded");
+      uconfig.gatekey.set("okSoundLoaded");
     });
     okSound.setParam("Sound URL", "http://animatedsoundworks.com:8001/jsaResources/sounds/click.mp3");
 
@@ -154,6 +182,7 @@ define(
 
           uconfig.name=name_input.value;
           uconfig.color=picker.toHEXString();
+          uconfig.voice=voice_input.value;
 
           uconfig.fire("submit");
           //c_id(); // call the callback when we have our info

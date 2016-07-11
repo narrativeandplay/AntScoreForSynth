@@ -8,9 +8,9 @@
 */
 
 require(
-	["require", "soundSelect", "comm", "utils", "touch2Mouse", "canvasSlider", "soundbank",  "scoreEvents/scoreEvent", "tabs/pitchTab", "tabs/rhythmTab", "tabs/chordTab",    "tabs/selectTab", "agentManager", "config", "userConfig", "chatter"],
+	["require", "soundSelect", "comm", "utils", "touch2Mouse", "canvasSlider", "soundbank",  "scoreEvents/scoreEvent", "tabs/pitchTab", "tabs/rhythmTab", "tabs/chordTab",    "tabs/selectTab", "agentManager", "config", "mods/gateKeeperFactory", "userConfig", "chatter"],
 
-	function (require, soundSelect, comm, utils, touch2Mouse, canvasSlider, soundbank, scoreEvent, pitchTabFactory, rhythmTabFactory, chordTabFactory,  selectTabFactory, agentMan,  config, userConfig, chatter) {
+	function (require, soundSelect, comm, utils, touch2Mouse, canvasSlider, soundbank, scoreEvent, pitchTabFactory, rhythmTabFactory, chordTabFactory,  selectTabFactory, agentMan,  config, loadGateFactory, userConfig, chatter) {
 
 		//var m_agent;
 		//agentMan.registerAgent(agentPlayer(soundSelect), "my real agent");
@@ -145,9 +145,9 @@ require(
 	
 
 		var toggleSoundButton = window.document.getElementById("soundToggleButton");
-		toggleSoundButton.state=true; // hack to get access to state from textEvent
-		var toggleSoundState=1;
-		toggleSoundButton.src="images/unmute.png";
+		toggleSoundButton.state=false; // hack to get access to state from textEvent
+		var toggleSoundState=0;
+		toggleSoundButton.src="images/mute.png";
 
 
 		var descXMsInterval; // =1000*descXSlider.value;
@@ -228,6 +228,7 @@ require(
 				    	// Add the option to the voice selector.
 						voiceSelect.appendChild(option);
 					});
+					userConfig.gatekey.set("voicesLoaded");
 				}
 			}
 
@@ -524,7 +525,8 @@ require(
 			myID=src; /// THIS IS WHERE WE FIRST GET IT.
 			nameIDMap[myID]=userConfig.name; // my name
 			colorIDMap[myID]=userConfig.color; // my colour
-			voiceIDMap[myID]=voiceSelect.value; // my voice
+			voiceIDMap[myID]=userConfig.voice; // my voice
+			voiceSelect.value=userConfig.voice; // make sure voice select reflects this
 
 			// send everyone our colour and voice - alex xxx
 			comm.sendJSONmsg("setName", {"name": nameIDMap[myID]});
