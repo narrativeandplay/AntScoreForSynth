@@ -39,6 +39,7 @@ define(
               voice_input.appendChild(option);
             });
             inner_div.appendChild(voice_input);
+            inner_div.appendChild(button_play);
             inner_div.appendChild(document.createElement("br"));
             inner_div.appendChild(document.createTextNode("Colour: "));
             inner_div.appendChild(color_input);
@@ -68,6 +69,17 @@ define(
     var voice_input = document.createElement("select");
       voice_input.className = "voice";
       voice_input.value = "Voice";
+    var button_play = document.createElement("button");
+      button_play.id = "voice_play";
+      button_play.innerHTML = "<img src='images/play.png' width='20px' height='20px' align='center'>";
+      button_play.onclick = function () {
+        // play the voice
+        var availableVoices = speechSynthesis.getVoices();
+        var msg = new SpeechSynthesisUtterance("Hello world");
+        var selectedVoice = voice_input.value;
+        msg.voice = availableVoices.filter(function(thisVoice) { return thisVoice.name === selectedVoice; })[0]; 
+        window.speechSynthesis.speak(msg);
+      };
     var color_input = document.createElement("input");
         var picker = new jscolor(color_input);
         picker.fromString("000000");      
