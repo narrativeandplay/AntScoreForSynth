@@ -586,8 +586,10 @@ block4c1
 		var scoreWindowTimeLength=40000; //ms
 		var pixelShiftPerMs=1*theCanvas.width/(scoreWindowTimeLength);
 		var pxPerSec=pixelShiftPerMs*1000;
-		var nowLinePx=10; //1*theCanvas.width/3;
-		var pastLinePx=-20; //-20; // after which we delete the display elements
+		var nowLineMs = scoreWindowTimeLength/4; // ms
+		var nowLinePx=nowLineMs/1000*pxPerSec; //1*theCanvas.width/3;
+		var pastLineMs=-5000; // ms
+		var pastLinePx=pastLineMs*pxPerSec/1000; // after which we delete the display elements
 		var displayTimeOffset=0; // use this to reset the time display (doesn't impact anything else)
 
 		var sprocketHeight=2;
@@ -737,7 +739,7 @@ block4c1
 			var disTime=sTime-(sTime%5000);
 			//console.log("write disTime= " + disTime);
 			context.font="5px Verdana";
-			while (disTime >=(sTime-scoreWindowTimeLength)){
+			while (disTime >=(sTime-scoreWindowTimeLength-nowLineMs+pastLineMs)){
 				var disTimeSec = (disTime-displayTimeOffset)/1000;
 				var disTimeMod = disTimeSec % 60;
 				var disTimeString;
