@@ -28,15 +28,17 @@ define(
           
             // Loop through each of the voices.
             voices.forEach(function(voice, i) {
-                // Create a new option element.
-              var option = document.createElement('option');
-              
-                // Set the options value and text.
-              option.value = voice.name;
-              option.innerHTML = voice.name;
+              if(voice.lang=="en-US" | voice.lang=="en-GB"){
+                  // Create a new option element.
+                var option = document.createElement('option');
                 
-                // Add the option to the voice selector.
-              voice_input.appendChild(option);
+                  // Set the options value and text.
+                option.value = voice.name;
+                option.innerHTML = voice.name;
+                  
+                  // Add the option to the voice selector.
+                voice_input.appendChild(option);
+              }
             });
             inner_div.appendChild(voice_input);
             inner_div.appendChild(button_play);

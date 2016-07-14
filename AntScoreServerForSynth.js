@@ -5,6 +5,11 @@ var express = require("express")
 , wss = new WebSocketServer({server: server})
 , fs = require('fs');
 
+// logging
+var log = require('npmlog-ts');
+log.timestamp=true;
+var logfile = require('npmlog-file');
+
 var k_portnum = process.argv[2] || 8020;
 
 var id = 1; // Given out incrementally to room joining clients

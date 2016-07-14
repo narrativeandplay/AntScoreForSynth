@@ -135,7 +135,7 @@ define(
                   thespan.appendChild(document.createTextNode(this.name + ": " + textBox.value))
                   thespan.appendChild(document.createElement("br"));
                   theScript.appendChild(thespan);
-                  theScript.scrollTop = theScript.offsetHeight;
+                  theScript.scrollTop = theScript.scrollHeight;
                   
                   if(toggleSoundButton.state===true ) {
                     if ('speechSynthesis' in window) {

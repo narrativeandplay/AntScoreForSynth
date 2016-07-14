@@ -149,6 +149,21 @@ require(
 		var toggleSoundState=0;
 		toggleSoundButton.src="images/mute.png";
 
+		var resetButton = window.document.getElementById("resetButton");
+		resetButton.onclick=function(){
+			comm.sendJSONmsg("startTime", []);
+		}
+
+		var togglePlayButton = window.document.getElementById("playToggleButton");
+		var togglePlayState=0;
+		togglePlayButton.onclick=function(){
+			togglePlayState=(togglePlayState+1)%2;
+			if (togglePlayState===0){
+				togglePlayButton.src="images/pause.png";
+			} else {
+				togglePlayButton.src="images/play.png";
+			}
+		}
 
 		var descXMsInterval; // =1000*descXSlider.value;
 		var descXPxInterval;
@@ -218,15 +233,17 @@ require(
 			  
 					// Loop through each of the voices.
 					voices.forEach(function(voice, i) {
-				    	// Create a new option element.
-						var option = document.createElement('option');
-				    
-					    // Set the options value and text.
-						option.value = voice.name;
-						option.innerHTML = voice.name;
-						  
-				    	// Add the option to the voice selector.
-						voiceSelect.appendChild(option);
+						if(voice.lang=="en-US" || voice.lang=="en-GB"){
+					    	// Create a new option element.
+							var option = document.createElement('option');
+					    
+						    // Set the options value and text.
+							option.value = voice.name;
+							option.innerHTML = voice.name;
+							  
+					    	// Add the option to the voice selector.
+							voiceSelect.appendChild(option);
+						}
 					});
 					userConfig.gatekey.set("voicesLoaded");
 				}
@@ -509,6 +526,12 @@ require(
 			serverTimeOrigin=data[0];
 			m_lastDisplayTick=0;
 			displayElements=[];		
+
+			// clear the script
+			var theScript = window.document.getElementById("publicChatArea");
+			while(theScript.firstChild) {
+				theScript.removeChild(theScript.firstChild);
+			};
 		});
 		//---------------------------------------------------------------------------
 		// when a new member joins, send them our colour and voice 
@@ -976,6 +999,8 @@ block4c1
 		function clearScore(){
 			for(dispElmt=displayElements.length-1;dispElmt>=0;dispElmt--){
 				displayElements[dispElmt].stopSound();
+				displayElements[dispElmt].destroy();
+				displayElements.splice(dispElmt,1);
 			}
 			current_mgesture=undefined;
 			current_mgesture_2send=undefined;
