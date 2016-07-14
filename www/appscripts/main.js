@@ -588,7 +588,7 @@ block4c1
 		var scoreWindowTimeLength=40000; //ms
 		var pixelShiftPerMs=1*theCanvas.width/(scoreWindowTimeLength);
 		var pxPerSec=pixelShiftPerMs*1000;
-		var nowLineMs = scoreWindowTimeLength/4; // ms
+		var nowLineMs = 1000; //scoreWindowTimeLength/4; // ms
 		var nowLinePx=nowLineMs/1000*pxPerSec; //1*theCanvas.width/3;
 		var pastLineMs=-5000; // ms
 		var pastLinePx=pastLineMs*pxPerSec/1000; // after which we delete the display elements

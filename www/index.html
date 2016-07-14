@@ -14,13 +14,13 @@
 
 <div id="wrap">
 
-	<div id="block0" >
+	<div id="block0" hidden>
         <div id="block0a">
         </div>
         <div id="block0b">
 
         </div>
-        <div id="block0c">
+        <div id="block0c" hidden>
             <span id="timeLabelDiv" >
                 Time:  
             </span>
@@ -40,6 +40,9 @@
         </div>
         <div id="block1b" >
         	            <canvas id="score"></canvas>
+        </div>
+        <div id="block3d">
+                      <canvas id="publicScratch"></canvas>
         </div>
         <div id="block1c" hidden>
                      <div > 
@@ -112,11 +115,10 @@
                      </div>     
 
         </div>
-        <div class="clear"> </div>
     </div>
     <div id="block3">
         <div id="block3a" hidden></div>
-        <div id="block3b">
+        <div id="block3b" hidden>
 
                 <div id="soundToggleButtonDiv" hidden>
                             <input id="soundToggleButton" type="image" src="images/unmute.png" width="20px" height="20px" border="0"> 
@@ -125,10 +127,6 @@
                 <div class="option" hidden>
                   <select name="voice" id="voice"></select>
                 </div>
-
-            <div id="block4c2">
-              <div id="publicChatArea"></div>
-            </div>
 
                 <div id="timeresetbuttondiv" hidden>
                             <input id="timeResetButton" type="button" value="Reset time" > 
@@ -148,9 +146,10 @@
             <input id="timeLockSlider" type="range" name="points" step=".01" min="0.001" max="1">
         </div>
 
-        <div id="block3d" hidden>
-                      <canvas id="publicScratch"></canvas>
+        <div id="block4c2">
+          <div id="publicChatArea"></div>
         </div>
+
         <div id="block3e">
                       <canvas id="privateScratch"></canvas>
         </div>

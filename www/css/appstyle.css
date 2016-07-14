@@ -315,14 +315,14 @@ color:black;
 
 }
 #publicChatArea{
-	width: 96%;
+	width: 99%;
 	border:1px solid grey;
 	height: 100%;
 	resize: none;
 	background-color: 333333;
 	color: black;
-	padding: 1px;
-	margin: 1px;
+	padding: 0px;
+	margin: 0px;
 	overflow-y:scroll;
 }
 
