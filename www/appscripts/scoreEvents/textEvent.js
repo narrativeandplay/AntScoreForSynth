@@ -130,23 +130,29 @@ define(
 
                // move to the "script", but only if the offer has been finalized
                if(textBox.value.length>0 && !destroyed) {
-                  var thespan = document. createElement("span");
-                  thespan.style.color=this.color;
-                  thespan.appendChild(document.createTextNode(this.name + ": " + textBox.value))
-                  thespan.appendChild(document.createElement("br"));
-                  theScript.appendChild(thespan);
-                  theScript.scrollTop = theScript.scrollHeight;
-                  
-                  if(toggleSoundButton.state===true ) {
-                    if ('speechSynthesis' in window) {
-                      var msg = new SpeechSynthesisUtterance(textBox.value);
-                      var theVoice = this.textVoice;
-                      if (theVoice) { 
-                        var availableVoices = speechSynthesis.getVoices();
-                        msg.voice = availableVoices.filter(function(thisVoice) { return thisVoice.name === theVoice; })[0]; //voiceSelect.value; })[0];
-                        console.log("Speaking with voice " + this.textVoice);
+                  var displayedText = textBox.value.replace(/{\b[^{]*}/gi, "");
+                  console.log("Displaying: " + displayedText);
+                  if(displayedText.length>0) {
+                    var thespan = document. createElement("span");
+                    thespan.style.color=this.color;
+                    thespan.appendChild(document.createTextNode(this.name + ": " + displayedText))
+                    thespan.appendChild(document.createElement("br"));
+                    theScript.appendChild(thespan);
+                    theScript.scrollTop = theScript.scrollHeight;
+                    
+                    if(toggleSoundButton.state===true ) {
+                      if ('speechSynthesis' in window) {
+                        var spokenText = displayedText.replace(/\[\b[^\[]*\]/gi, "");
+                        console.log("Saying: " + spokenText);
+                        var msg = new SpeechSynthesisUtterance(spokenText);
+                        var theVoice = this.textVoice;
+                        if (theVoice) { 
+                          var availableVoices = speechSynthesis.getVoices();
+                          msg.voice = availableVoices.filter(function(thisVoice) { return thisVoice.name === theVoice; })[0]; //voiceSelect.value; })[0];
+                          console.log("Speaking with voice " + this.textVoice);
+                        }
+                        window.speechSynthesis.speak(msg);
                       }
-                      window.speechSynthesis.speak(msg);
                     }
                   }
                }
