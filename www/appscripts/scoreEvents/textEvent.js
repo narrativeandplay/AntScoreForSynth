@@ -9,6 +9,8 @@ define(
         var sendImmediately = true; // should changes by sent on keystroke?
         var isPublic = true;        // are changes public?
 
+        var triggered = false ; // has this already been triggered (by the now line)?
+
          var textBox=document.createElement("input");
          textBox.className="textBox1"
          var scoreElmt;
@@ -118,7 +120,8 @@ define(
             this.myDraw(ctx, time2Px(this.d[0][0])  , this.d[0][1] );
 
             // add to script when the text hits the now line
-            if (nowishP(this.d[0][0])){
+            if (nowishP(this.d[0][0]) && !triggered){
+              triggered = true;
               this.disableEditing();
               this.disableDragging();
               this.sayOffer(textBox.value);

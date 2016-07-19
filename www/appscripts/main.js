@@ -592,7 +592,6 @@ require(
 			console.log("got chat from src = " + src);
 			m_chatter.setText(src, data.text, data.time); 
 		});
-block4c1
 
 		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 		// Client activity
@@ -621,7 +620,7 @@ block4c1
 		var sprocketWidth=1;
 		var sprocketInterval=1000; //ms
 
-		var numTracks = 2;
+		var numTracks = 1;
 		var trackHeight=1*theCanvas.height / numTracks;
 		var trackY =[]; // array of y-values (pixels) that devide each track on the score
 		for (var i=0;i<numTracks;i++){
@@ -648,7 +647,8 @@ block4c1
 		var lastDrawTime=0;
 		var t_sinceOrigin;
 		var nowishP = function(t){
-			if ((t > lastDrawTime) && (t <= t_sinceOrigin)) return true;
+			//if ((t > lastDrawTime) && (t <= t_sinceOrigin)) return true;
+			if (t <= t_sinceOrigin) return true;
 		}
 
 
@@ -836,29 +836,18 @@ block4c1
 
 				if(!displayElements[dispElmt].scratch) {
 
+					var dispe = displayElements[dispElmt];	
+					dispe.draw(context, time2Px, nowishP, t_sinceOrigin);
+
 					// If its moved out of our score window, delete it from the display list
-					t_end=time2Px(displayElements[dispElmt].e);
+					t_end=time2Px(dispe.e);
 
 					if (t_end < pastLinePx) {
 						// remove event from display list if not on a scratch display
-						console.log("deleting element at time " + displayElements[dispElmt].e);
-						displayElements[dispElmt].destroy();
+						console.log("deleting element at time " + dispe.e);
+						dispe.destroy();
 						displayElements.splice(dispElmt,1);
-
-					} else{
-
-						var dispe = displayElements[dispElmt];	
-
-						//console.log("draw event of type " + dispe.type);				
-						dispe.draw(context, time2Px, nowishP, t_sinceOrigin);
-
-
-						// If element is just crossing the "now" line, create little visual explosion
-						//if (nowishP(dispe.d[0][0])){					
-						//	explosion(time2Px(dispe.d[0][0]), dispe.d[0][1], 5, "#FF0000", 3, "#FFFFFF");
-
-						//} 
-					}
+					} 
 				} else {
 						var dispe = displayElements[dispElmt];	
 						dispe.myDraw(dispe.isPublic ? publicScratchContext : privateScratchContext, dispe.d[0][0], dispe.d[0][1]);
