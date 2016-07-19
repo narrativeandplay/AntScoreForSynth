@@ -954,6 +954,7 @@ require(
 				current_mgesture=scoreEvent("textEvent");
 				current_mgesture.enableEditing(); // enable since it's our own for typing into
 				current_mgesture.enableDragging(); // enable since it's our own 
+				current_mgesture.getFocus(); 
 				current_mgesture.d=[[t,y,z]];
 				current_mgesture.name=nameIDMap[myID];
 				current_mgesture.color=colorIDMap[myID];
@@ -1250,6 +1251,7 @@ require(
 			current_mgesture=scoreEvent(thisEventType);
 			current_mgesture.enableEditing(); // enable since it's our own for typing into
 			current_mgesture.enableDragging(); // enable since it's our own 
+			current_mgesture.getFocus(); 
 			current_mgesture.d=[[x,y,0]];
 			current_mgesture.name=nameIDMap[myID];
 			current_mgesture.color=colorIDMap[myID];

@@ -32,7 +32,6 @@ define(
 
          console.log("appending textBox");
          scoreElmt.appendChild(textBox);
-         textBox.focus();
 
          var m_scoreEvent=generalScoreEvent("textEvent");
          m_scoreEvent.isPublic=isPublic;
@@ -44,6 +43,10 @@ define(
          m_textHeight=12;
 
          textBox.style.fontSize="14pt";
+
+        m_scoreEvent.getFocus= function(){
+          textBox.focus();
+        }
 
         m_scoreEvent.enableDragging= function(){
           // drag and drop
