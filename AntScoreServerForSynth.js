@@ -48,6 +48,7 @@ function subscribe(rm) {
 
     roomBroadcast(rm, this, 'newmember', [this.id]);
     console.log("new subscription to room " + rm);
+    log.info("User "+this.id+" joined room "+rm);
 
     sendState(this);
 
@@ -85,12 +86,14 @@ function unsubscribe(rm) {
         room = '';
 
         console.log(ws.id + " is gone..." );
+        log.info("User "+ws.id+" left room " +rm);
     }
 }
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 function genericBroadcast(m, data) {
+    //log.info("User " + this.id + " genericBroadcast: ("+m+","+data+")");
     var that=this;
     this.room.forEach(function(r){
         roomBroadcast(r, that, m, data);
@@ -108,6 +111,7 @@ function contGesture(data) {
 
 // basic data exchange method for responding to one socket, sending to rest
 function beginGesture(data) {
+    //log.info("User " + this.id + " beginGesture");
     var that=this;
     this.room.forEach(function(r){
         //console.log("In beginGesture, my id is " + that.id);
@@ -118,6 +122,7 @@ function beginGesture(data) {
 
 // basic data exchange method for responding to one socket, sending to rest
 function endGesture(data) {
+    log.info("User " + this.id + " endGesture");
     var that=this;
     this.room.forEach(function(r){
         roomBroadcast(r, that, 'endGesture', data);
@@ -126,6 +131,7 @@ function endGesture(data) {
 
 // When 'ere a client sends this message, the server sends out a new time to all room members
 function startTime() {
+    log.info("User " + this.id + " startTime");
     var JStime = Date.now();
     this.room.forEach(function(r){
         roomBroadcast(r, 0, 'startTime', [JStime]); // 0 sender sends to all members in a room
