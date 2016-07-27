@@ -1,18 +1,18 @@
 /* This application does simple "event chat". Here, events are mouse clicks on a canvas. 
 	There is also a metronome tick that comes the server (totally unrelated to the event chat functionality).
 	We register for the following messages:
-		init - sent by the server after the client connects. Data returned is an id that the server and other clients will use to recognizes messages from this client.
+		init - sent by the server after the send connects. Dta returned is an id that the server and other clients will use to recognizes messages from this client.
 		mouseContourGesture - sent when select chatroom member generates a mouse click. Data is x, y of their mouse position on their canvas.
 		metroPulse - sent by the server evdispPxery second to all chatroom members. Data is the server Date.now.
 		startTime  - sent when another chatroom member requests a new time origin. Data is the server Date.now.
 */
 
 require(
-	["require", "soundSelect", "comm", "utils", "touch2Mouse", "canvasSlider", "soundbank",  "scoreEvents/scoreEvent", "tabs/pitchTab", "tabs/rhythmTab", "tabs/chordTab",    "tabs/selectTab", "agentManager", "config", "userConfig", "chatter"],
+	["require", "soundSelect", "comm", "utils", "touch2Mouse", "canvasSlider", "soundbank",  "scoreEvents/scoreEvent", "tabs/pitchTab", "tabs/rhythmTab", "tabs/chordTab",    "tabs/selectTab", "agentManager", "config", "userConfig",  "chatter"],
 
-	function (require, soundSelect, comm, utils, touch2Mouse, canvasSlider, soundbank, scoreEvent, pitchTabFactory, rhythmTabFactory, chordTabFactory,  selectTabFactory, agentMan,  config, userConfig, chatter) {
+	function (require, soundSelect, comm, utils, touch2Mouse, canvasSlider, soundbank, scoreEvent, pitchTabFactory, rhythmTabFactory, chordTabFactory,  selectTabFactory, agentMan,  config, userConfig,  chatter) {
 
-		//var m_agent;
+		//var mphraseLock.pixelX_agent;
 		//agentMan.registerAgent(agentPlayer(soundSelect), "my real agent");
 		agentMan.initialize(soundSelect);
 
@@ -93,6 +93,7 @@ require(
 		var radioPitch = window.document.getElementById("radioPitch");
 		var radioRhythm = window.document.getElementById("radioRhythm");
 		var radioChord = window.document.getElementById("radioChord");
+		var radioPhrase = window.document.getElementById("radioPhrase");
 
 		var yLockButton = window.document.getElementById("yLockButton");
 		var toggleYLockP=0;
@@ -123,6 +124,12 @@ require(
 		}
 
 		var timeLockSlider = window.document.getElementById("timeLockSlider");
+
+		var phraseLock = {
+			value : 0, 		// in [0,1], used the same way the timeLockSlider is
+			pixelX : 0,
+			window : null
+		}
 	
 
 		var toggleSoundButton = window.document.getElementById("soundToggleButton");
@@ -223,7 +230,10 @@ require(
 		window.addEventListener("keydown", keyDown, true);
 
 		function keyDown(e){
-         		var keyCode = e.keyCode;
+			var t;
+			if (e.repeat) return;
+         		var keyCode = e.which;
+         		//console.log("keyCode  is " + keyCode + ", and e.key is " + e.key);
          		switch(keyCode){
          			case 84:   //'T'
          				if (e.altKey===true){
@@ -251,7 +261,56 @@ require(
 							
          				}
 				}
+				if (radioSelection === "phrase"){
+					//console.log("keyDown in phraseMode: " + keyCode + ", with value = " );
+
+					if (! current_mgesture){
+							// AUTO start phrase gesture at now line if keypressed before mousepress
+							phraseLock.pixelX=nowLinePx+.5;
+							phraseLock.value=px2NormFuture(phraseLock.pixelX);
+							
+							if (soundSelect.getModelName()===undefined){
+								console.log("mousedown: soundselect.model name is " + soundSelect.getModelName());
+								return;
+							}
+							// it would be great to set the y value for this gesture to be at the level where the first note is displayed....
+							initiateContour(phraseLock.pixelX,  theCanvas.height/2 - 10*myID);
+					}
+
+
+					if (current_mgesture){
+						switch(keyCode){
+							case 13: 
+								t=t_sinceOrigin+scoreWindowTimeLength*(2/3)*phraseLock.value;
+								//current_mgesture.updateMaxTime(t);
+								//current_mgesture.addEvent(current_mgesture.e, 0, 0, {"event" : "endPhrase"});
+								endContour(t, 0);
+								break;
+							default: 
+								t=t_sinceOrigin+scoreWindowTimeLength*(2/3)*phraseLock.value;
+								current_mgesture.addEvent(t, 0, leftSlider.value, {"event" : "keyDown", "key" : e.key});
+								break;
+						}
+					} else{
+						console.log("no gesture to add noteon event to.")
+					}
+				}
 		}
+
+
+		window.addEventListener("keyup", keyUp, true);
+
+		function keyUp(e){
+			if (e.repeat) return;
+         	var keyCode = e.which;
+			var t; 
+			if (! current_mgesture) return;
+			t=t_sinceOrigin+scoreWindowTimeLength*(2/3)*phraseLock.value;
+			current_mgesture.addEvent(t, 0, leftSlider.value, {"event" : "keyUp", "key" : e.key});
+	     }
+
+
+
 
 		radioSpray.onclick=function(){
 			radioSelection = this.value;
@@ -285,6 +344,11 @@ require(
 			setTab("chordTab");
 		};
 
+		radioPhrase.onclick=function(){
+			radioSelection = this.value;
+			setTab("phraseTab");
+		};
+
 		//radioContour.addEventListener("onclick", function(){console.log("radio Contour");});
 		var setTab=function(showTab){
 
@@ -306,6 +370,7 @@ require(
 			window.document.getElementById("rhythmTab").style.display="none";
 			window.document.getElementById("chordTab").style.display="none";
 			window.document.getElementById("selectTab").style.display="none";
+			window.document.getElementById("phraseTab").style.display="none";
 
 			// now show the tab that was selected with the radio buttons
 			// (these tabs provide the options for the selected mode)
@@ -330,7 +395,8 @@ require(
 		comm.registerCallback('contGesture', function(data, src) {
 			current_remoteEvent[src].d = current_remoteEvent[src].d.concat(data);
 			if (data.length === 0) console.log("Got contour event with 0 length data!");
-			current_remoteEvent[src].e=data[data.length-1][0];
+			current_remoteEvent[src].updateMaxTime();
+			//current_remoteEvent[src].e=data[data.length-1][0];
 		});
 		//---------------------------------------------------------------------------
 		// data is [timestamp (relative to "now"), x,y] of mouseContourGesture, and src is the id of the clicking client
@@ -344,13 +410,17 @@ require(
 			// automatically fill any fields of the new scoreEvent sent
 			for (fname in data.fields){
 				current_remoteEvent[src][fname]=data.fields[fname];
+				console.log("adding fields " + fname + " = " + data.fields[fname])
 			}
-
-			// These are "derived" fields, so no need to send them with the message
-			current_remoteEvent[src].b=data.d[0][0];
-			current_remoteEvent[src].e=data.d[data.d.length-1][0];
 			current_remoteEvent[src].d=data.d;
 			current_remoteEvent[src].s=src;
+
+			// These are "derived" fields, so no need to send them with the message
+			current_remoteEvent[src].updateMinTime();
+			current_remoteEvent[src].updateMaxTime();
+			//current_remoteEvent[src].b=data.d[0][0];
+			//current_remoteEvent[src].e=data.d[data.d.length-1][0];
+			console.log("Begin Gesture: END TIME NOW " + current_remoteEvent[src].e);
 
 			current_remoteEvent[src].soundbank=soundbank;
 
@@ -381,7 +451,12 @@ require(
 		//---------------------------------------------------------------------------
 		// data is [timestamp (relative to "now"), x,y] of mouseContourGesture, and src is the id of the clicking client
 		comm.registerCallback('endGesture', function(data, src) {
+			console.log("end gester received");
+			if (data.length >=1){
+				current_remoteEvent[src].e=data[0];
+			}
 			current_remoteEvent[src]=undefined; // no more data coming
+
 		});
 
 		//---------------------------------------------------------------------------
@@ -496,6 +571,10 @@ require(
 			return (px/pixelShiftPerMs);
 		}
 
+		var px2NormFuture=function(px){
+			return (px2Time(px)/((2/3)*scoreWindowTimeLength));
+		}
+
 		var lastDrawTime=0;
 		var t_sinceOrigin;
 		var nowishP = function(t){
@@ -529,7 +608,7 @@ require(
 				var tx=m.x;
 				var ty=m.y;
 
-				tx= (toggleTimeLockP===0) ? elapsedtime + px2Time(m.x): elapsedtime+scoreWindowTimeLength*(2/3)*timeLockSlider.value;
+				tx= (toggleTimeLockP===0) ? elapsedtime + px2Time(m.x) : elapsedtime+scoreWindowTimeLength*(2/3)*timeLockSlider.value;
 
 				//Descretize the new point in time and height
 				if (descXButton.toggleState === 1){ 
@@ -569,19 +648,20 @@ require(
 							}
 
 
-							current_mgesture.d.push([interx, intery, k_minLineThickness + k_maxLineThickness*leftSlider.value]);
+							current_mgesture.addEvent(interx, intery, k_minLineThickness + k_maxLineThickness*leftSlider.value);
 							current_mgesture_2send.d.push([interx, intery, k_minLineThickness + k_maxLineThickness*leftSlider.value]);
 						}
 
 						// after extending previous point, add the new point
-						current_mgesture.d.push([tx, ty, k_minLineThickness + k_maxLineThickness*leftSlider.value]);
+						current_mgesture.addEvent(tx, ty, k_minLineThickness + k_maxLineThickness*leftSlider.value);
 						current_mgesture_2send.d.push([tx, ty, k_minLineThickness + k_maxLineThickness*leftSlider.value]);
 					}
 					current_mgesture.updateMaxTime();
 				} 
 				if (current_mgesture &&  current_mgesture.type === 'mouseEventGesture'){
 					if (elapsedtime > (m_lastSprayEvent+k_sprayPeriod)){
-						current_mgesture.d.push([tx, ty, k_minLineThickness + k_maxLineThickness*leftSlider.value]);
+						// add a spray splotto the current gesture
+						current_mgesture.addEvent(tx, ty, k_minLineThickness + k_maxLineThickness*leftSlider.value);
 						current_mgesture_2send.d.push([tx, ty, k_minLineThickness + k_maxLineThickness*leftSlider.value]);						
 						m_lastSprayEvent  = Date.now()-timeOrigin;
 					}
@@ -724,7 +804,7 @@ require(
 				context.closePath();
 			}
 
-		}
+		} // closes the drawscreen function
 
 
 
@@ -759,7 +839,9 @@ require(
 
 			var z = k_minLineThickness + k_maxLineThickness*leftSlider.value;
 			// time at the "now" line + the distance into the future or past 
-			var t = Date.now()-timeOrigin + px2Time(x);			
+			var t = Date.now()-timeOrigin + px2Time(x);		
+
+			//console.log("initiateContour with t = " + t)	;
 
 			if (radioSelection==='contour'){
 				current_mgesture=scoreEvent("mouseContourGesture");
@@ -798,7 +880,7 @@ require(
 				current_mgesture.d=[[t,y,z]];
 
 				// calculate the length of the text box on the canvas
-				//current_mgesture.d.push([t + pxTimeSpan(context.measureText(m_tTab.currentSelection()).width),y,z]);
+				//current_mgesture.addEvent(t + pxTimeSpan(context.measureText(m_tTab.currentSelection()).width),y,z);
 
 				// send WHLE GESTRE AT ONCE (no need to send updated data in real time )
 				//comm.sendJSONmsg("beginGesture", {"d":[[t,y,z]], "type": "textEvent", "cont": false, "fields": {"text": m_tTab.currentSelection()} });
@@ -821,10 +903,22 @@ require(
 				current_mgesture.d= [[t,y,z]];
 			}
 
+			if (radioSelection==='phrase'){
+				current_mgesture=scoreEvent("phraseEvent", phraseLock);
+				current_mgesture.d= [[t,y,z]];
+
+				current_mgesture.soundbank=soundbank;
+				current_mgesture.soundName = soundSelect.getModelName();
+				current_mgesture.param1=soundSelect.getSelectedParamName(1);
+				current_mgesture.param2=soundSelect.getSelectedParamName(2);
+
+				comm.sendJSONmsg("beginGesture", {"d":[[t,y,z]], "type": "phraseEvent", "gID": current_mgesture.gID, "cont": true, "fields": current_mgesture.getKeyFields() });
+
+			}
+
 			current_mgesture.updateMinTime();
 			current_mgesture.updateMaxTime();
 			current_mgesture.s= myID;
-			console.log("setting current_mgesture.s to " + myID);
 			current_mgesture.color="#00FF00";
 			displayElements.push(current_mgesture);
 		}
@@ -839,7 +933,7 @@ require(
 
 
 		function endContour(){
-			//console.log("current event is " + current_mgesture + " and the data length is " + current_mgesture.d.length);
+			//console.log("endContour: current event is " + current_mgesture + " and the data length is " + current_mgesture.d.length);
 			current_mgesture.b=current_mgesture.d[0][0];
 			//console.log("contour length is " + current_mgesture.d.length);
 			current_mgesture.e=current_mgesture.d[current_mgesture.d.length-1][0];
@@ -851,8 +945,15 @@ require(
 					if (current_mgesture_2send.d.length > 0){
 						comm.sendJSONmsg("contGesture", current_mgesture_2send.d);
 					}
-					comm.sendJSONmsg("endGesture", []);
+					comm.sendJSONmsg("endGesture", [current_mgesture.e]);
 				}	
+
+				//"new" api to purge main.js of any "current_mgesture_2send" crap.
+				if (current_mgesture.type==="phraseGesture"){ // only phraseGesture uses new api so far.
+					current_mgesture.sendContinuation();
+					comm.sendJSONmsg("endGesture", [current_mgesture.e]);
+				}
+
 			}
 			current_mgesture=undefined;
 			current_mgesture_2send=undefined;
@@ -899,7 +1000,21 @@ require(
 				}
 			}
 
+			if (m_currentTab === "phraseTab") {
+				console.log("mouse down with phraseTab selected");
+				if (current_mgesture) {
+					endContour(t_sinceOrigin+scoreWindowTimeLength*(2/3)*phraseLock.value, 0);
+				}
+				phraseLock.value=px2NormFuture(x);
+				phraseLock.pixelX=x;
+				console.log("MouseDown: setting phraseLockValue to " + phraseLock.value);
+				if (soundSelect.getModelName()===undefined){
+					console.log("mousedown: soundselect.model name is " + soundSelect.getModelName());
+					return;
+				}
+			}
 
+			// now either select a duplicate a selected contour or initiate a new one.
 			if (m_currentTab === "selectTab"){
 				console.log("onMouseDown: check for selected element");
 				for(dispElmt=displayElements.length-1;dispElmt>=0;dispElmt--){
@@ -935,6 +1050,7 @@ require(
 		}
 
 		function onMouseUp(e){
+			if (m_currentTab === "phraseTab") return; // don't end phrase gestures until RETURN key is hit
 			current_mgesture && endContour();
 			var m = utils.getCanvasMousePosition(theCanvas, e);
 
@@ -973,14 +1089,20 @@ require(
 			//-----------  if an event is in the middle of being drawn, send it every sendCurrentEventInterval
 			// send current event data periodically (rather than waiting until it is complete)
 			//console.log("time since origin= " + t_sinceOrigin + ", (t_sinceOrigin-lastSendTimeforCurrentEvent) = "+ (t_sinceOrigin-lastSendTimeforCurrentEvent));
-			if ((current_mgesture_2send!=undefined) && ((t_sinceOrigin-lastSendTimeforCurrentEvent) > sendCurrentEventInterval)){
+			if ((t_sinceOrigin-lastSendTimeforCurrentEvent) > sendCurrentEventInterval){
 				//console.log("tick " + t_sinceOrigin);
 				if (myRoom != []) {
 					//console.log("sending event");
-					if (current_mgesture_2send.d.length > 0)
+					if (current_mgesture_2send && (current_mgesture_2send.d.length > 0)) {
 						comm.sendJSONmsg("contGesture", current_mgesture_2send.d);
+						current_mgesture_2send.d=[];
+					}
+					//"new" api to purge main.js of any "current_mgesture_2send" crap.
+					if (current_mgesture && current_mgesture.type==="phraseGesture"){ // only phraseGesture uses new api so far.
+						current_mgesture.sendContinuation();
+					}
+
 				}
-				current_mgesture_2send.d=[];
  				lastSendTimeforCurrentEvent=t_sinceOrigin;
 			}
 			
