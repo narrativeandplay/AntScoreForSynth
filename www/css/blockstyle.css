@@ -124,11 +124,12 @@ html, body
     }
 #block3d {
         background-color: white;
-        width: 19%;
+        width: 65%;
         height: 100%; 
         float: left; 
         overflow: visible;
         font-family: "Courier New", Courier, monospace;
+        padding: 1px;
     }
 #block3e {
         background-color: #eeeeee;
