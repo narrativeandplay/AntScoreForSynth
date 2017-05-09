@@ -8,13 +8,13 @@
 */
 
 require(
-	["require", "soundSelect", "comm", "utils", "touch2Mouse", "canvasSlider", "soundbank",  "scoreEvents/scoreEvent", "tabs/pitchTab", "tabs/rhythmTab", "tabs/chordTab",    "tabs/selectTab", "agentManager", "config", "mods/gateKeeperFactory", "userConfig", "chatter"],
+	["require", "comm", "utils", "touch2Mouse", "canvasSlider", "scoreEvents/scoreEvent", "tabs/pitchTab", "tabs/rhythmTab", "tabs/chordTab",    "tabs/selectTab", "agentManager", "config", "mods/gateKeeperFactory", "userConfig", "chatter"],
 
-	function (require, soundSelect, comm, utils, touch2Mouse, canvasSlider, soundbank, scoreEvent, pitchTabFactory, rhythmTabFactory, chordTabFactory,  selectTabFactory, agentMan,  config, loadGateFactory, userConfig, chatter) {
+	function (require, comm, utils, touch2Mouse, canvasSlider, scoreEvent, pitchTabFactory, rhythmTabFactory, chordTabFactory,  selectTabFactory, agentMan,  config, loadGateFactory, userConfig, chatter) {
 
 		//var m_agent;
 		//agentMan.registerAgent(agentPlayer(soundSelect), "my real agent");
-		agentMan.initialize(soundSelect);
+		//agentMan.initialize(soundSelect);
 
 		userConfig.on("submit", function(){
 			if (userConfig.player === "agent"){
@@ -264,6 +264,7 @@ require(
 
 		//-----------------------------------------------------------------------------
 		//var newSoundSelector = window.document.getElementById("newSoundSelector")
+		/*
 		soundSelect.setCallback("newSoundSelector", newSoundHandler, "Pentatonic Tone"); // last arg is an (optional) default sound to load
 		function newSoundHandler(currentSMFactory) {
 			var model = soundSelect.getModelName();
@@ -275,6 +276,7 @@ require(
 			}
 			comm.sendJSONmsg('addToSoundbank', [model]);
 		}
+		*/
 
 
 
@@ -291,11 +293,11 @@ require(
 			if (toggleSoundState===0){
 				toggleSoundButton.src="images/mute.png";
 				toggleSoundButton.state=false;
-				soundSelect.setMute(true);
+				//soundSelect.setMute(true);
 			} else {
 				toggleSoundButton.src="images/unmute.png";
 				toggleSoundButton.state=true;
-				soundSelect.setMute(false);
+				//soundSelect.setMute(false);
 			}
 		}
 
@@ -324,6 +326,7 @@ require(
 							document.getElementById("radioContour").checked=true;
          				}
          				break;
+/*         				
          			case 83:
          				if (e.ctrlKey==1){
          					//alert("control s was pressed");
@@ -333,6 +336,7 @@ require(
 							}
 							
          				}
+         				*/
 				}
 		}
 
@@ -438,7 +442,7 @@ require(
 			current_remoteEvent[src].d=data.d;
 			current_remoteEvent[src].s=src;
 
-			current_remoteEvent[src].soundbank=soundbank;
+			//current_remoteEvent[src].soundbank=soundbank;
 
 			// check this is a scratch event
 			if(data.scratch) {
@@ -576,7 +580,7 @@ require(
 
 		});
 
-
+/*
 		comm.registerCallback('addToSoundbank', function(data, src) {
 			console.log("add to soundbank for remote client " + data[0]);
 			soundSelect.loadSound(data[0],function(sfactory){
@@ -585,7 +589,7 @@ require(
 			});
 
 		});
-
+*/
 	//------------------------
 	// For chatting
 		comm.registerCallback('chat', function (data, src){
@@ -914,12 +918,13 @@ require(
 		function initiateContour(x, y){
 			//console.log("initateContour: radioSelection is " + radioSelection);
 			// don't draw contours if no sound is loaded (but allow text entry)
-			if((! soundSelect.loaded()) && (! (radioSelection==='text'))) return;
+			if((! (radioSelection==='text'))) return;
 
 			var z = k_minLineThickness + k_maxLineThickness*leftSlider.value;
 			// time at the "now" line + the distance into the future or past 
 			var t = Date.now()-timeOrigin + px2Time(x);			
 
+/*
 			if (radioSelection==='contour'){
 				current_mgesture=scoreEvent("mouseContourGesture");
 				current_mgesture.d=[[t,y,z]];
@@ -949,7 +954,7 @@ require(
 
 				m_lastSprayEvent  = Date.now()-timeOrigin; // now, regardless of where on the time score the event is
 			} 
-
+*/
 			if (radioSelection==='text'){
 				current_mgesture=scoreEvent("textEvent");
 				current_mgesture.enableEditing(); // enable since it's our own for typing into
@@ -1050,14 +1055,14 @@ require(
 
 			//console.log("mousedown: m_currentTab is " + m_currentTab);
 
-
+/*
 			if ((m_currentTab === "sprayTab") || (m_currentTab === "contourTab")) {
 				if (soundSelect.getModelName()===undefined){
 					console.log("mousedown: soundselect.model name is " + soundSelect.getModelName());
 					return;
 				}
 			}
-
+*/
 
 			if (m_currentTab === "selectTab"){
 				console.log("onMouseDown: check for selected element");
@@ -1073,12 +1078,13 @@ require(
 					var yshift = y-m_selectedElement.d[0][1];
 					var newG = m_selectedElement.duplicate(tshift,yshift,scoreEvent(m_selectedElement.type));
 
+/*
 					if (document.getElementById("radio_copyNewSound").checked === true){
 			               newG.soundName=soundSelect.getModelName();
 			               newG.param1=soundSelect.getSelectedParamName(1);
 			               newG.param2=soundSelect.getSelectedParamName(2);
 					}
-					
+*/					
 
 					comm.sendJSONmsg("beginGesture", {"d":newG.d, "type": m_selectedElement.type, "cont": false, "fields": newG.getKeyFields() });
 					m_selectedElement.select(false);

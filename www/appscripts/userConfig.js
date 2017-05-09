@@ -4,8 +4,8 @@ Just include this file in a require module, no need to call anything.
 require.config({
 });
 define(
-  ["jsaSound/jsaModels/jsaMp3", "mods/gateKeeperFactory", "utils"],
-  function(sndFactory, loadGateFactory, utils){
+  ["mods/gateKeeperFactory", "utils"],
+  function(loadGateFactory, utils){
 
     // object to be returned by this module
     var uconfig = {
@@ -14,7 +14,7 @@ define(
       "name": "",
       "color": "",
       "voice": "",
-      "gatekey": (gateKeeperFactory(["okSoundLoaded","voicesLoaded"], // after all keys are set(), function will execute
+      "gatekey": (gateKeeperFactory(["voicesLoaded"], // after all keys are set(), function will execute
           function(){
             // replace "loading" with "All ready" and make the submit button available
             legend.innerHTML = "Improv Writing";
@@ -140,7 +140,7 @@ define(
  //++++++++++++++++++++++++++++++++++++++++++++++++
 
     // The real reason for this sound is that Apple devices require a user-initiated sound before the program can generate sound on its own
-    var okSound=sndFactory();
+    //var okSound=sndFactory();
 
     // load voices
 
@@ -160,10 +160,10 @@ define(
 
       inner_div.appendChild(roomdiv);
     // This is a click sound which get the iOs sound flowing
-    okSound.on("resourceLoaded",  function(){
-      uconfig.gatekey.set("okSoundLoaded");
-    });
-    okSound.setParam("Sound URL", "http://animatedsoundworks.com:8001/jsaResources/sounds/click.mp3");
+    //okSound.on("resourceLoaded",  function(){
+    //  uconfig.gatekey.set("okSoundLoaded");
+    //});
+    //okSound.setParam("Sound URL", "http://animatedsoundworks.com:8001/jsaResources/sounds/click.mp3");
 
 
 /*
@@ -177,8 +177,8 @@ define(
           //var checked = false, formElems = this.parentNode.getElementsByTagName('input');
 
           //alert("click");
-          okSound.setParam("Gain", 1);
-          okSound.setParam("play", 1);
+          //okSound.setParam("Gain", 1);
+          //okSound.setParam("play", 1);
           //msgbox.value="click played";
 
           //console.log(roomSelector.selectedOptions);
