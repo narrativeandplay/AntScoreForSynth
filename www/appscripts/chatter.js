@@ -50,7 +50,7 @@ define(
 			if (evt.key==="Enter") {
 				console.log("****");
 				msg=thisTB.value;
-				comm.sendJSONmsg("chat", {"text": msg, "time": time_cb(), "texttype": texttype});
+				//comm.sendJSONmsg("chat", {"text": msg, "time": time_cb(), "texttype": texttype});
 				chatter.sayOffer(msg, myName, myColour, myVoice, texttype, true);
 				thisTB.value="";
 			}
@@ -86,6 +86,8 @@ define(
         	publicTB.scrollTop = publicTB.scrollHeight;
         }
 
+		chatter.pendingOffer = ""; // store the offer until the intent is entered
+
         // add distinguishing of text type (awareness, offer or intent)
         chatter.sayOffer = function(iText, iName, iColor, iVoice, iTexttype, iLocal) {
             var thespan = document.createElement("span");
@@ -112,6 +114,7 @@ define(
 				        if(iLocal){
 		        			currentState=DISABLED;
 		        			offerTB.disabled=true;
+		        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": OFFER});
 				        } else {
 		        			currentState=AWARENESS;
 		        			awarenessTB.disabled=false;
@@ -123,6 +126,7 @@ define(
 				            offerTB.disabled=true;
 				            intentTB.disabled=false;
 				            intentTB.focus();
+		        			this.pendingOffer=iText;
 			            }
 			        }
             		break;
@@ -137,6 +141,8 @@ define(
 			        if(iLocal){
 	        			currentState=DISABLED;
 	        			intentTB.disabled=true;
+	        			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER});
+	        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": INTENT});
 			        } else {
 	        			currentState=AWARENESS;
 	        			awarenessTB.disabled=false;
