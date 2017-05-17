@@ -4,14 +4,17 @@ define(
       // argurments are <textareas>
       return function (i_publicTB, i_awarenessTB, i_offerTB, i_intentTB, i_name, i_colour, i_voice, time_cb, currentURL){
 
-      	const AWARENESS = 0;
-      	const OFFER = 1;
-      	const INTENT = 2;
+      	const DISABLED = 0;
+      	const AWARENESS = 1;
+      	const OFFER = 2;
+      	const INTENT = 3;
 
     	var chatter={};
 
     	var condition = currentURL.query.condition;
 		console.log("condition:" + condition);
+    	var participant = currentURL.query.participant;
+		console.log("participant:" + participant);
 
     	var publicTB = i_publicTB;
     	var awarenessTB = i_awarenessTB;
@@ -20,6 +23,8 @@ define(
     	var myName = i_name;
     	var myColour = i_colour;
     	var myVoice = i_voice;
+
+    	var currentState = DISABLED;
 
     	chatter.setName=function(iName) {
     		myName = iName;
@@ -44,33 +49,32 @@ define(
 			console.log("in onkeyup,  my chat text = " + thisTB.value +","+evt.key);
 			if (evt.key==="Enter") {
 				console.log("****");
-				msg=thisTB.value.slice(thisTB.prompt.length);
+				msg=thisTB.value;
 				comm.sendJSONmsg("chat", {"text": msg, "time": time_cb(), "texttype": texttype});
 				chatter.sayOffer(msg, myName, myColour, myVoice, texttype, true);
-				thisTB.value=thisTB.prompt;
+				thisTB.value="";
 			}
 		}
 
 		if(awarenessTB){
-	    	awarenessTB.prompt="awareness: ";
-	    	awarenessTB.value=awarenessTB.prompt;
-
+			if(participant==1){
+				awarenessTB.disabled = false;
+				currentState = AWARENESS;
+			}
 			awarenessTB.onkeyup = function(evt){
 				keyupHandler(evt, awarenessTB, AWARENESS);
 			}
 	    }
 	    if(offerTB){
-	    	offerTB.prompt="offer: ";
-	    	offerTB.value=offerTB.prompt;
-
 			offerTB.onkeyup = function(evt){
 				keyupHandler(evt, offerTB, OFFER);
 			}
 	    }
 	    if(intentTB){
-	    	intentTB.prompt="intent: ";
-	    	intentTB.value=intentTB.prompt;
-
+			if(condition==1) {
+				intentTB.style.visibility="hidden";
+				document.getElementById("intentHeader").style.visibility="hidden";
+			}
 			intentTB.onkeyup = function(evt){
 				keyupHandler(evt, intentTB, INTENT);
 			}
@@ -94,12 +98,33 @@ define(
 			            indentItalics.appendChild(document.createTextNode(iName + ": "))
 			            indentItalics.appendChild(document.createTextNode("< "+iText+">"));
 			            thespan.appendChild(document.createElement("br"));
+			            currentState=OFFER;
+			            awarenessTB.disabled=true;
+			            offerTB.disabled=false;
+			            offerTB.focus();
             		}
             		break;
             	case OFFER:
 		            thespan.appendChild(document.createTextNode(iName + ": "))
 		            thespan.appendChild(document.createTextNode(iText))
 		            thespan.appendChild(document.createElement("br"));
+		            if(condition==1){
+				        if(iLocal){
+		        			currentState=DISABLED;
+		        			offerTB.disabled=true;
+				        } else {
+		        			currentState=AWARENESS;
+		        			awarenessTB.disabled=false;
+		        			awarenessTB.focus();
+				        }
+		            } else {
+			            if(iLocal) {
+				            currentState=INTENT;
+				            offerTB.disabled=true;
+				            intentTB.disabled=false;
+				            intentTB.focus();
+			            }
+			        }
             		break;
             	case INTENT:
             		if(iLocal || condition==3) {
@@ -109,12 +134,20 @@ define(
 			            indentItalics.appendChild(document.createTextNode("[ "+iText+"]"));
 			            thespan.appendChild(document.createElement("br"));
 			        }
+			        if(iLocal){
+	        			currentState=DISABLED;
+	        			intentTB.disabled=true;
+			        } else {
+	        			currentState=AWARENESS;
+	        			awarenessTB.disabled=false;
+	        			awarenessTB.focus();
+			        }
             		break;
             }
             theScript.appendChild(thespan);
             theScript.scrollTop = theScript.scrollHeight;
             
-            if(toggleSoundButton.state===true ) {
+            if(toggleSoundButton.state===true && iTexttype==OFFER) {
               if ('speechSynthesis' in window) {
                 console.log("Saying: " + iText);
                 var msg = new SpeechSynthesisUtterance(iText);
