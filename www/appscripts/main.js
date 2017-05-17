@@ -260,7 +260,13 @@ require(
 		}
 
 		var m_chatter=chatter(window.document.getElementById("publicChatArea"),
-			window.document.getElementById("myChatArea"), getScoreTime);
+			window.document.getElementById("awarenessInput"),
+			window.document.getElementById("offerInput"),
+			window.document.getElementById("intentInput"), 
+			userConfig.name,
+			userConfig.voice,
+			userConfig.color,
+			getScoreTime);
 
 		//-----------------------------------------------------------------------------
 		//var newSoundSelector = window.document.getElementById("newSoundSelector")
@@ -554,6 +560,9 @@ require(
 			colorIDMap[myID]=userConfig.color; // my colour
 			voiceIDMap[myID]=userConfig.voice; // my voice
 			voiceSelect.value=userConfig.voice; // make sure voice select reflects this
+			m_chatter.setName(userConfig.name);
+			m_chatter.setVoice(userConfig.voice);
+			m_chatter.setColour(userConfig.color);
 
 			// send everyone our colour and voice - alex xxx
 			comm.sendJSONmsg("setName", {"name": nameIDMap[myID]});
@@ -593,8 +602,8 @@ require(
 	//------------------------
 	// For chatting
 		comm.registerCallback('chat', function (data, src){
-			console.log("got chat from src = " + src);
-			m_chatter.setText(src, data.text, data.time); 
+			console.log("got chat from src = " + src + ":"+data.text);
+			m_chatter.sayOffer(data.text, nameIDMap[src], colorIDMap[src], voiceIDMap[src]); 
 		});
 
 		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

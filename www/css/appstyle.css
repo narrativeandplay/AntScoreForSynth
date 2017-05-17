@@ -1,7 +1,7 @@
 body
 {
-	background-color:black;
-	color:white;
+	background-color:white;
+	color:black;
 }
 h3 {
 	color:white;
@@ -313,6 +313,22 @@ color:black;
 	height: 88%;
 	resize: none;
 
+}
+
+#awarenessInput{
+	width: 30%;
+	height: 10%;
+	resize: none;
+}
+#offerInput{
+	width: 30%;
+	height: 10%;
+	resize: none;
+}
+#intentInput{
+	width: 30%;
+	height: 10%;
+	resize: none;
 }
 #publicChatArea{
 	width: 99%;
