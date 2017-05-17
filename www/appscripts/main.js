@@ -7,10 +7,11 @@
 		startTime  - sent when another chatroom member requests a new time origin. Data is the server Date.now.
 */
 
-require(
-	["require", "comm", "utils", "touch2Mouse", "canvasSlider", "scoreEvents/scoreEvent", "tabs/pitchTab", "tabs/rhythmTab", "tabs/chordTab",    "tabs/selectTab", "agentManager", "config", "mods/gateKeeperFactory", "userConfig", "chatter"],
 
-	function (require, comm, utils, touch2Mouse, canvasSlider, scoreEvent, pitchTabFactory, rhythmTabFactory, chordTabFactory,  selectTabFactory, agentMan,  config, loadGateFactory, userConfig, chatter) {
+require(
+	["require", "urijs", "comm", "utils", "touch2Mouse", "canvasSlider", "scoreEvents/scoreEvent", "tabs/pitchTab", "tabs/rhythmTab", "tabs/chordTab",    "tabs/selectTab", "agentManager", "config", "mods/gateKeeperFactory", "userConfig", "chatter"],
+
+	function (require, URI, comm, utils, touch2Mouse, canvasSlider, scoreEvent, pitchTabFactory, rhythmTabFactory, chordTabFactory,  selectTabFactory, agentMan,  config, loadGateFactory, userConfig, chatter) {
 
 		//var m_agent;
 		//agentMan.registerAgent(agentPlayer(soundSelect), "my real agent");
@@ -266,7 +267,8 @@ require(
 			userConfig.name,
 			userConfig.voice,
 			userConfig.color,
-			getScoreTime);
+			getScoreTime,
+			URI(window.location.href));
 
 		//-----------------------------------------------------------------------------
 		//var newSoundSelector = window.document.getElementById("newSoundSelector")
@@ -603,7 +605,7 @@ require(
 	// For chatting
 		comm.registerCallback('chat', function (data, src){
 			console.log("got chat from src = " + src + ":"+data.text);
-			m_chatter.sayOffer(data.text, nameIDMap[src], colorIDMap[src], voiceIDMap[src]); 
+			m_chatter.sayOffer(data.text, nameIDMap[src], colorIDMap[src], voiceIDMap[src], data.texttype, false); 
 		});
 
 		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
