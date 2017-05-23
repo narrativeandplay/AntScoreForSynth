@@ -14,6 +14,8 @@ define(
 		console.log("condition:" + condition);
     	var participant = currentURL.query.participant;
 		console.log("participant:" + participant);
+    	var isVerbal = currentURL.query.verbal;
+		console.log("isVerbal:" + isVerbal);
 
     	var publicTB = i_publicTB;
     	var offerTB = i_offerTB;
@@ -23,7 +25,7 @@ define(
     	var myColour = i_colour;
     	var myVoice = i_voice;
 
-    	var isVerbal = (document.querySelector('audio#gum')!=null);
+    	//var isVerbal = (document.querySelector('audio#gum')!=null);
 
     	var currentState = DISABLED;
 
