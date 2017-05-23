@@ -143,8 +143,8 @@ function play() {
   recordedVideo.src = window.URL.createObjectURL(superBuffer);
 }
 
-function playIntent(i_receivedBlobs) {
-  recordedVideo.src = window.URL.createObjectURL(i_receivedBlobs);
+function playIntent(i_receivedBlobs,i_player) {
+  i_player.src = window.URL.createObjectURL(i_receivedBlobs);
 }
 
 function download() {

@@ -121,12 +121,14 @@ define(
 			        }
             		break;
             	case INTENT:
-            		if(iLocal || condition==3) {
+            		if(!iLocal && condition==3) {
 	            		var indentItalics = document.createElement("em");
 			            thespan.appendChild(indentItalics);
 			            indentItalics.appendChild(document.createTextNode(iName + ": "))
-			            indentItalics.appendChild(document.createTextNode("[ "+iText+"]"));
-			            thespan.appendChild(document.createElement("br"));
+			            if(!isVerbal) {
+				            indentItalics.appendChild(document.createTextNode("[ "+iText+"]"));
+				            thespan.appendChild(document.createElement("br"));
+				        }
 			        }
 			        if(iLocal){
 	        			currentState=DISABLED;
@@ -164,7 +166,17 @@ define(
           chatter.sayIntent=function(iBlobs, iName, iColor, iVoice, iLocal) {
           	console.log("Got intent!" + iBlobs);
           	if(condition==3) {
-	          	playIntent(iBlobs);
+	            var thespan = document.createElement("span");
+	            thespan.style.color=iColor;
+          		var intentPlayer = document.createElement("audio");
+          		intentPlayer.controls=true;
+          		intentPlayer.autoplay=true;
+          		intentPlayer.loop=false;
+          		intentPlayer.style.verticalAlign="text-bottom";
+          		thespan.appendChild(intentPlayer);
+	            thespan.appendChild(document.createElement("br"));
+	            theScript.appendChild(thespan);
+	          	playIntent(iBlobs, intentPlayer);
           	}
           }
 
@@ -176,6 +188,8 @@ define(
 			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER});
 			var blob = new Blob(i_recordedBlobs, {type: 'video/webm'});
 			comm.sendBlob("intent", blob);
+			// should there be a local record of intent?
+			// this.sayIntent(blob, null, null, null, true);
 			comm.sendJSONmsg("chat", {"text": "intent sent as audio", "time": time_cb(), "texttype": INTENT});
           }
 
