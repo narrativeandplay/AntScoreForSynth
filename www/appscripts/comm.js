@@ -3,7 +3,7 @@ define(
 	function () {
 
 		var host = document.location.host;
-		var ws = new WebSocket('ws://' + host);
+		var ws = new WebSocket('wss://' + host);
 
 		console.log("host is " + host);
 

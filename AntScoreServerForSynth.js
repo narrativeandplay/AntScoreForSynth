@@ -1,9 +1,13 @@
 var express = require("express")
+, fs = require('fs')
 , app = express()
-, server = require('http').createServer(app)
+, server = require('https').createServer({
+        key: fs.readFileSync('key.pem'),
+        cert: fs.readFileSync('cert.pem')
+    }, app)
+//, server = require('http').createServer(app)
 , WebSocketServer = require('ws').Server
-, wss = new WebSocketServer({server: server})
-, fs = require('fs');
+, wss = new WebSocketServer({server: server});
 
 // logging
 var log = require('npmlog-ts');
