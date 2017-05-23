@@ -191,6 +191,15 @@ html, body
     font-family: "Courier New", Courier, monospace;
     font-size: 30px;
 }
+#block4c3-spectator{
+    width: 99%;
+    height: 80%;
+    background-color: white;
+    float: left;
+    padding: 2px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 30px;
+}
 #block4d {
         background-color: black;
         width: 20%;

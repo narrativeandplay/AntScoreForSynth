@@ -261,7 +261,6 @@ require(
 		}
 
 		var m_chatter=chatter(window.document.getElementById("publicChatArea"),
-			window.document.getElementById("awarenessInput"),
 			window.document.getElementById("offerInput"),
 			window.document.getElementById("intentInput"), 
 			userConfig.name,
@@ -269,6 +268,8 @@ require(
 			userConfig.color,
 			getScoreTime,
 			URI(window.location.href));
+
+		window.m_chatter = m_chatter; // verbal specific
 
 		//-----------------------------------------------------------------------------
 		//var newSoundSelector = window.document.getElementById("newSoundSelector")
@@ -606,6 +607,12 @@ require(
 		comm.registerCallback('chat', function (data, src){
 			console.log("got chat from src = " + src + ":"+data.text);
 			m_chatter.sayOffer(data.text, nameIDMap[src], colorIDMap[src], voiceIDMap[src], data.texttype, false); 
+		});
+
+		// received verbal intent (blob)
+		comm.registerCallback('intent', function (data, src){
+			console.log("got intent from src = " + src + ":"+data);
+			m_chatter.sayIntent(data, nameIDMap[src], colorIDMap[src], voiceIDMap[src], false); 
 		});
 
 		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

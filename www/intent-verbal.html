@@ -45,7 +45,17 @@
 
     <div id="inputheader">Enter your character's next line<textarea id="offerInput" disabled></textarea></div>
     <div id="inputheader"><span id="intentHeader" hidden>Why did you do that?</span><textarea id="intentInput" disabled hidden></textarea></div>
-  </div>
+    <div>
+      <audio id="gum" autoplay muted></audio>
+      <audio id="recorded" autoplay loop></audio>
+
+      <div>
+        <button id="record" disabled hidden>Send</button>
+        <button id="play" disabled hidden>Play</button>
+        <button id="download" disabled hidden>Download</button>
+      </div>
+    </div>
+</div>
 
     <div id="block1" hidden>
         <div id="block1a" hidden>
@@ -215,5 +225,7 @@
 
 	<!-- <div id="footer" align="center">  </div> -->
 </div> <!-- wrap -->
+
+  <script src="appscripts/record.js"></script>
 </body>
 </html>

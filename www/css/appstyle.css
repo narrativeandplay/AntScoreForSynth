@@ -315,19 +315,32 @@ color:black;
 
 }
 
+#inputheader{
+	width:99%;
+	font-family:Calibri ; font-size:14px; 
+}
 #awarenessInput{
-	width: 30%;
-	height: 10%;
+	vertical-align: text-top;
+	padding: 1px;
+	margin: 2px;
+	width: inherit;
+	rows:1;
 	resize: none;
 }
 #offerInput{
-	width: 30%;
-	height: 10%;
+	vertical-align: text-top;
+	padding: 1px;
+	margin: 2px;
+	width: inherit;
+	rows:1;
 	resize: none;
 }
 #intentInput{
-	width: 30%;
-	height: 10%;
+	vertical-align: text-top;
+	padding: 1px;
+	margin: 2px;
+	width: inherit;
+	rows:1;
 	resize: none;
 }
 #publicChatArea{

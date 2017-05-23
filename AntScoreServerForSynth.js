@@ -177,6 +177,34 @@ function roomBroadcast(room, sender, name, data) {
     });
 }
 
+// verbal only - hack to broadcast blob
+function blobBroadcast(m, data) {
+    //log.info("User " + this.id + " genericBroadcast: ("+m+","+data+")");
+    var that=this;
+    this.room.forEach(function(r){
+        roomBlobBroadcast(r, that, m, data);
+    });
+    
+}
+
+function roomBlobBroadcast(room, sender, name, data) {
+    if (rooms[room] === undefined)
+        return;
+
+    var src = sender ? sender.id : 0; // 0 means from server - send to all members in a room
+    //if (sender !== null) console.log("roombroadcast: " + name +  ' from sender ' +  sender + " with id = " + src);
+    rooms[room].forEach(function (ws) {
+        if (ws !== sender) {
+            if (ws.readyState === 1){
+                ws.send(data);
+            } else {
+                console.log( "roomBroadcast: ws" + ws + " with ws.id =" + ws.id + " is not in ready state");
+            }
+        }
+    });
+}
+
+
 // Send state to a particular recipient
 function sendState(ws){
     console.log("In send state with state.currentSound length = " + state.currentSound.length)
@@ -196,6 +224,9 @@ function receiveJSONmsg(data, flags) {
     try {
         obj = JSON.parse(data);
     } catch (e) {
+        console.log("can't parse JSON")
+        // verbal only - hack to bypass all the stringifying, assume this is a blob
+        blobBroadcast.call(this, 'intent', data)
         return;
     }
     

@@ -2,10 +2,9 @@ define(
 	["comm"],
 	function (comm) {
       // argurments are <textareas>
-      return function (i_publicTB, i_awarenessTB, i_offerTB, i_intentTB, i_name, i_colour, i_voice, time_cb, currentURL){
+      return function (i_publicTB, i_offerTB, i_intentTB, i_name, i_colour, i_voice, time_cb, currentURL){
 
       	const DISABLED = 0;
-      	const AWARENESS = 1;
       	const OFFER = 2;
       	const INTENT = 3;
 
@@ -17,12 +16,14 @@ define(
 		console.log("participant:" + participant);
 
     	var publicTB = i_publicTB;
-    	var awarenessTB = i_awarenessTB;
     	var offerTB = i_offerTB;
     	var intentTB = i_intentTB;
+    	var intentHeader = document.getElementById("intentHeader");
     	var myName = i_name;
     	var myColour = i_colour;
     	var myVoice = i_voice;
+
+    	var isVerbal = (document.querySelector('audio#gum')!=null);
 
     	var currentState = DISABLED;
 
@@ -56,16 +57,11 @@ define(
 			}
 		}
 
-		if(awarenessTB){
-			if(participant==1){
-				awarenessTB.disabled = false;
-				currentState = AWARENESS;
-			}
-			awarenessTB.onkeyup = function(evt){
-				keyupHandler(evt, awarenessTB, AWARENESS);
-			}
-	    }
 	    if(offerTB){
+			if(participant==1){
+				offerTB.disabled = false;
+				currentState = OFFER;
+			}
 			offerTB.onkeyup = function(evt){
 				keyupHandler(evt, offerTB, OFFER);
 			}
@@ -93,19 +89,6 @@ define(
             var thespan = document.createElement("span");
             thespan.style.color=iColor;
             switch(iTexttype){
-            	case AWARENESS:
-            		if(iLocal) {
-	            		var indentItalics = document.createElement("em");
-			            thespan.appendChild(indentItalics);
-			            indentItalics.appendChild(document.createTextNode(iName + ": "))
-			            indentItalics.appendChild(document.createTextNode("< "+iText+">"));
-			            thespan.appendChild(document.createElement("br"));
-			            currentState=OFFER;
-			            awarenessTB.disabled=true;
-			            offerTB.disabled=false;
-			            offerTB.focus();
-            		}
-            		break;
             	case OFFER:
 		            thespan.appendChild(document.createTextNode(iName + ": "))
 		            thespan.appendChild(document.createTextNode(iText))
@@ -116,17 +99,24 @@ define(
 		        			offerTB.disabled=true;
 		        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": OFFER});
 				        } else {
-		        			currentState=AWARENESS;
-		        			awarenessTB.disabled=false;
-		        			awarenessTB.focus();
+		        			currentState=OFFER;
+		        			offerTB.disabled=false;
+		        			offerTB.focus();
 				        }
 		            } else {
 			            if(iLocal) {
 				            currentState=INTENT;
 				            offerTB.disabled=true;
 				            intentTB.disabled=false;
-				            intentTB.focus();
 		        			this.pendingOffer=iText;
+		        			intentHeader.hidden=false;
+		        			// verbal specific stuff
+		        			if(isVerbal) {
+			        			startRecording();
+			        		} else {
+			        			intentTB.hidden=false;
+					            intentTB.focus();
+			        		}
 			            }
 			        }
             		break;
@@ -141,12 +131,14 @@ define(
 			        if(iLocal){
 	        			currentState=DISABLED;
 	        			intentTB.disabled=true;
+	        			intentTB.hidden=true;
+	        			intentHeader.hidden=true;
 	        			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER});
 	        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": INTENT});
 			        } else {
-	        			currentState=AWARENESS;
-	        			awarenessTB.disabled=false;
-	        			awarenessTB.focus();
+	        			currentState=OFFER;
+	        			offerTB.disabled=false;
+	        			offerTB.focus();
 			        }
             		break;
             }
@@ -166,6 +158,25 @@ define(
                 window.speechSynthesis.speak(msg);
               }
             }
+          }
+
+          // verbal specific
+          chatter.sayIntent=function(iBlobs, iName, iColor, iVoice, iLocal) {
+          	console.log("Got intent!" + iBlobs);
+          	if(condition==3) {
+	          	playIntent(iBlobs);
+          	}
+          }
+
+          // verbal specific
+          chatter.endIntent=function(i_recordedBlobs){
+			currentState=DISABLED;
+			intentTB.disabled=true;
+			intentHeader.hidden=true;
+			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER});
+			var blob = new Blob(i_recordedBlobs, {type: 'video/webm'});
+			comm.sendBlob("intent", blob);
+			comm.sendJSONmsg("chat", {"text": "intent sent as audio", "time": time_cb(), "texttype": INTENT});
           }
 
         return chatter;
