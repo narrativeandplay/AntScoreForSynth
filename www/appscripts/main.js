@@ -605,8 +605,8 @@ require(
 	//------------------------
 	// For chatting
 		comm.registerCallback('chat', function (data, src){
-			console.log("got chat from src = " + src + ":"+data.text);
-			m_chatter.sayOffer(data.text, nameIDMap[src], colorIDMap[src], voiceIDMap[src], data.texttype, false); 
+			console.log("got chat from src = " + src + ":"+data.text+":"+data.selectedCube);
+			m_chatter.sayOffer(data.text, nameIDMap[src], colorIDMap[src], voiceIDMap[src], data.texttype, data.selectedCube, false); 
 		});
 
 		// received verbal intent (blob)

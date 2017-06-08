@@ -16,6 +16,7 @@ define(
 		console.log("participant:" + participant);
     	var isVerbal = currentURL.query.verbal;
 		console.log("isVerbal:" + isVerbal);
+		var hasCubes = false;
 
     	var publicTB = i_publicTB;
     	var offerTB = i_offerTB;
@@ -26,6 +27,28 @@ define(
     	var myVoice = i_voice;
 
     	//var isVerbal = (document.querySelector('audio#gum')!=null);
+
+    	// cubes 
+    	var selectedCube=null;
+    	var selectedCubeId="";
+		var cubeMenu = document.getElementById("cubeMenu");
+		var cubeMenuDisabled = document.getElementById("disabledDropdown");
+		if(cubeMenu) {
+			hasCubes=true;
+			for (i=1; i<10; i++) {
+				var thisCube = document.getElementById("cube"+i);
+				thisCube.onclick=function(e) {
+					console.log("clicked cube " + e.currentTarget.id);
+					if(selectedCube!=null) 
+						selectedCube.border=0;
+					selectedCube=e.target;
+					selectedCube.border=1;
+					selectedCubeId=e.currentTarget.id;
+					cubeMenu.src=selectedCube.src;
+					cubeMenuDisabled.src=selectedCube.src;
+				}
+			}
+		}
 
     	var currentState = DISABLED;
 
@@ -54,7 +77,7 @@ define(
 				console.log("****");
 				msg=thisTB.value;
 				//comm.sendJSONmsg("chat", {"text": msg, "time": time_cb(), "texttype": texttype});
-				chatter.sayOffer(msg, myName, myColour, myVoice, texttype, true);
+				chatter.sayOffer(msg, myName, myColour, myVoice, texttype, selectedCubeId, true);
 				thisTB.value="";
 			}
 		}
@@ -86,28 +109,66 @@ define(
 
 		chatter.pendingOffer = ""; // store the offer until the intent is entered
 
+		function hideCube(iSelectedCube) {
+			if(hasCubes){
+				var thisCube = document.getElementById(iSelectedCube);
+				thisCube.hidden=true;
+			}
+		}
+
+		function disableCube(inDisable) {
+			if(hasCubes) {
+				if(inDisable) {
+					cubeMenu.hidden=true;
+					cubeMenuDisabled.style.display="initial";
+				} else {
+					cubeMenu.hidden=false;
+					cubeMenuDisabled.style.display="none";
+				}
+			}
+		}
+
+		function blankCube() {
+			if(hasCubes)
+				cubeMenu.src="images/cubes/cube0.jpg";
+				cubeMenuDisabled.src="images/cubes/cube0.jpg";
+		}
+
         // add distinguishing of text type (awareness, offer or intent)
-        chatter.sayOffer = function(iText, iName, iColor, iVoice, iTexttype, iLocal) {
+        chatter.sayOffer = function(iText, iName, iColor, iVoice, iTexttype, iSelectedCube, iLocal) {
             var thespan = document.createElement("span");
             thespan.style.color=iColor;
             switch(iTexttype){
             	case OFFER:
-		            thespan.appendChild(document.createTextNode(iName + ": "))
+		            thespan.appendChild(document.createTextNode(iName + ": "));
+		            var theImage = document.createElement("IMG");
+		            theImage.src="images/cubes/"+iSelectedCube+"-1.jpg";
+		            theImage.border=1;
+		            theImage.width=30;
+		            theImage.height=30;
+		            thespan.appendChild(theImage);
 		            thespan.appendChild(document.createTextNode(iText))
 		            thespan.appendChild(document.createElement("br"));
+        			hideCube(iSelectedCube);
 		            if(condition==1){
+		            	// in condition 1, just toggle between offer and disabled
 				        if(iLocal){
 		        			currentState=DISABLED;
+	        				disableCube(true);
+	        				blankCube();
 		        			offerTB.disabled=true;
-		        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": OFFER});
+		        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": OFFER, "selectedCube": iSelectedCube});
 				        } else {
 		        			currentState=OFFER;
+        					disableCube(false);
 		        			offerTB.disabled=false;
 		        			offerTB.focus();
 				        }
 		            } else {
+		            	// otherwise, ask for intent after offer is entered
 			            if(iLocal) {
 				            currentState=INTENT;
+	        				disableCube(true);
 				            offerTB.disabled=true;
 				            intentTB.disabled=false;
 		        			this.pendingOffer=iText;
@@ -124,6 +185,7 @@ define(
             		break;
             	case INTENT:
             		if(!iLocal && condition==3) {
+            			// if not local and condition 3, then show the intent
 	            		var indentItalics = document.createElement("em");
 			            thespan.appendChild(indentItalics);
 			            indentItalics.appendChild(document.createTextNode(iName + ": "))
@@ -133,14 +195,18 @@ define(
 				        }
 			        }
 			        if(iLocal){
+			        	// if local, send the offer and intent and pass control to remote
 	        			currentState=DISABLED;
+	        			blankCube();
 	        			intentTB.disabled=true;
 	        			intentTB.hidden=true;
 	        			intentHeader.hidden=true;
-	        			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER});
+	        			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER, "selectedCube": iSelectedCube});
 	        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": INTENT});
 			        } else {
+			        	// otherwise, we now have control, so switch to offer
 	        			currentState=OFFER;
+        				disableCube(false);
 	        			offerTB.disabled=false;
 	        			offerTB.focus();
 			        }
@@ -185,9 +251,10 @@ define(
           // verbal specific
           chatter.endIntent=function(i_recordedBlobs){
 			currentState=DISABLED;
+			blankCube();
 			intentTB.disabled=true;
 			intentHeader.hidden=true;
-			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER});
+			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER, "selectedCube": selectedCubeId});
 			var blob = new Blob(i_recordedBlobs, {type: 'video/webm'});
 			comm.sendBlob("intent", blob);
 			// should there be a local record of intent?
