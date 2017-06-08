@@ -553,6 +553,10 @@ require(
 			comm.sendJSONmsg("setName", {"name": nameIDMap[myID]});
 			comm.sendJSONmsg("setVoice", {"voice": voiceIDMap[myID]});
 			comm.sendJSONmsg("setColor", {"color": colorIDMap[myID]});
+
+			// if we are participant 1, send the list of cubes here
+			if(m_chatter.participant==1)
+				comm.sendJSONmsg("setCubes", m_chatter.getCubeValues());
 		});
 		//---------------------------------------------------------------------------
 		// a list of all members including yourself
@@ -571,6 +575,10 @@ require(
 			comm.sendJSONmsg("setName", {"name": nameIDMap[myID]});
 			comm.sendJSONmsg("setVoice", {"voice": voiceIDMap[myID]});
 			comm.sendJSONmsg("setColor", {"color": colorIDMap[myID]});
+
+			// if we are participant 1, send the list of cubes here
+			if(m_chatter.participant==1)
+				comm.sendJSONmsg("setCubes", m_chatter.getCubeValues());
 
 			// data.forEach(function(m){
 			// 	if (m != myID){
@@ -605,14 +613,20 @@ require(
 	//------------------------
 	// For chatting
 		comm.registerCallback('chat', function (data, src){
-			console.log("got chat from src = " + src + ":"+data.text+":"+data.selectedCube);
-			m_chatter.sayOffer(data.text, nameIDMap[src], colorIDMap[src], voiceIDMap[src], data.texttype, data.selectedCube, false); 
+			console.log("got chat from src = " + src + ":"+data.text+","+data.selectedCube+","+data.selectedCubeValue);
+			m_chatter.sayOffer(data.text, nameIDMap[src], colorIDMap[src], voiceIDMap[src], data.texttype, data.selectedCube, data.selectedCubeValue, false); 
 		});
 
 		// received verbal intent (blob)
 		comm.registerCallback('intent', function (data, src){
 			console.log("got intent from src = " + src + ":"+data);
 			m_chatter.sayIntent(data, nameIDMap[src], colorIDMap[src], voiceIDMap[src], false); 
+		});
+
+		// received cube values
+		comm.registerCallback('setCubes', function (data, src){
+			console.log("got setCubes from src = " + src + ":"+data+":"+data);
+			m_chatter.setCubeValues(data); 
 		});
 
 		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

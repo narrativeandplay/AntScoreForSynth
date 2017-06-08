@@ -13,6 +13,7 @@ define(
     	var condition = currentURL.query.condition;
 		console.log("condition:" + condition);
     	var participant = currentURL.query.participant;
+    	chatter.participant=participant;
 		console.log("participant:" + participant);
     	var isVerbal = currentURL.query.verbal;
 		console.log("isVerbal:" + isVerbal);
@@ -31,12 +32,18 @@ define(
     	// cubes 
     	var selectedCube=null;
     	var selectedCubeId="";
+    	var selectedCubeValue=0;
 		var cubeMenu = document.getElementById("cubeMenu");
 		var cubeMenuDisabled = document.getElementById("disabledDropdown");
+		var cubeValues = [];
 		if(cubeMenu) {
 			hasCubes=true;
 			for (i=1; i<10; i++) {
 				var thisCube = document.getElementById("cube"+i);
+				var thisCubeValue=Math.floor((Math.random() * 6) + 1);
+				cubeValues[i]=thisCubeValue;
+				thisCube.firstChild.src="images/cubes/cube"+i+"-"+thisCubeValue+".jpg";
+				thisCube.firstChild.cubeValue=thisCubeValue; // store the value on the element
 				thisCube.onclick=function(e) {
 					console.log("clicked cube " + e.currentTarget.id);
 					if(selectedCube!=null) 
@@ -44,6 +51,7 @@ define(
 					selectedCube=e.target;
 					selectedCube.border=1;
 					selectedCubeId=e.currentTarget.id;
+					selectedCubeValue=selectedCube.cubeValue;
 					cubeMenu.src=selectedCube.src;
 					cubeMenuDisabled.src=selectedCube.src;
 				}
@@ -64,6 +72,37 @@ define(
     		myColour = iColour;
     	}
 
+    	chatter.getCubeValues=function() {
+    		return {"one": cubeValues[1],
+					 "two": cubeValues[2], 
+					 "three": cubeValues[3], 
+					 "four": cubeValues[4], 
+					 "five": cubeValues[5], 
+					 "six": cubeValues[6], 
+					 "seven": cubeValues[7], 
+					 "eight": cubeValues[8], 
+					 "nine": cubeValues[9]};
+
+    	}
+
+    	chatter.setCubeValues=function(inData) {
+    		console.log("setCubeValues");
+    		cubeValues[1]=inData.one;
+    		cubeValues[2]=inData.two;
+    		cubeValues[3]=inData.three;
+    		cubeValues[4]=inData.four;
+    		cubeValues[5]=inData.five;
+    		cubeValues[6]=inData.six;
+    		cubeValues[7]=inData.seven;
+    		cubeValues[8]=inData.eight;
+    		cubeValues[9]=inData.nine;
+    		for(i=1;i<10;i++){
+				var thisCube = document.getElementById("cube"+i);
+				thisCube.firstChild.src="images/cubes/cube"+i+"-"+cubeValues[i]+".jpg";
+				thisCube.firstChild.cubeValue=cubeValues[i]; // store the value on the element
+    		}
+    	}
+
 		// remember the chat area (the "script") and sound state button
 		var theScript = document.getElementById("publicChatArea");
 		var theScriptParent = document.getElementById("block4c2")
@@ -77,7 +116,7 @@ define(
 				console.log("****");
 				msg=thisTB.value;
 				//comm.sendJSONmsg("chat", {"text": msg, "time": time_cb(), "texttype": texttype});
-				chatter.sayOffer(msg, myName, myColour, myVoice, texttype, selectedCubeId, true);
+				chatter.sayOffer(msg, myName, myColour, myVoice, texttype, selectedCubeId, selectedCubeValue, true);
 				thisTB.value="";
 			}
 		}
@@ -86,6 +125,8 @@ define(
 			if(participant==1){
 				offerTB.disabled = false;
 				currentState = OFFER;
+			} else {
+				disableCube(true);
 			}
 			offerTB.onkeyup = function(evt){
 				keyupHandler(evt, offerTB, OFFER);
@@ -135,19 +176,19 @@ define(
 		}
 
         // add distinguishing of text type (awareness, offer or intent)
-        chatter.sayOffer = function(iText, iName, iColor, iVoice, iTexttype, iSelectedCube, iLocal) {
+        chatter.sayOffer = function(iText, iName, iColor, iVoice, iTexttype, iSelectedCube, iSelectedCubeValue, iLocal) {
             var thespan = document.createElement("span");
             thespan.style.color=iColor;
             switch(iTexttype){
             	case OFFER:
 		            thespan.appendChild(document.createTextNode(iName + ": "));
 		            var theImage = document.createElement("IMG");
-		            theImage.src="images/cubes/"+iSelectedCube+"-1.jpg";
+		            theImage.src="images/cubes/"+iSelectedCube+"-"+iSelectedCubeValue+".jpg";
 		            theImage.border=1;
 		            theImage.width=30;
 		            theImage.height=30;
 		            thespan.appendChild(theImage);
-		            thespan.appendChild(document.createTextNode(iText))
+		            thespan.appendChild(document.createTextNode(" "+iText))
 		            thespan.appendChild(document.createElement("br"));
         			hideCube(iSelectedCube);
 		            if(condition==1){
@@ -157,7 +198,7 @@ define(
 	        				disableCube(true);
 	        				blankCube();
 		        			offerTB.disabled=true;
-		        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": OFFER, "selectedCube": iSelectedCube});
+		        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": OFFER, "selectedCube": iSelectedCube, "selectedCubeValue": iSelectedCubeValue});
 				        } else {
 		        			currentState=OFFER;
         					disableCube(false);
@@ -201,7 +242,7 @@ define(
 	        			intentTB.disabled=true;
 	        			intentTB.hidden=true;
 	        			intentHeader.hidden=true;
-	        			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER, "selectedCube": iSelectedCube});
+	        			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER, "selectedCube": iSelectedCube, "selectedCubeValue": iSelectedCubeValue});
 	        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": INTENT});
 			        } else {
 			        	// otherwise, we now have control, so switch to offer
@@ -254,7 +295,7 @@ define(
 			blankCube();
 			intentTB.disabled=true;
 			intentHeader.hidden=true;
-			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER, "selectedCube": selectedCubeId});
+			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER, "selectedCube": selectedCubeId, "selectedCubeValue": iSelectedCubeValue});
 			var blob = new Blob(i_recordedBlobs, {type: 'video/webm'});
 			comm.sendBlob("intent", blob);
 			// should there be a local record of intent?
