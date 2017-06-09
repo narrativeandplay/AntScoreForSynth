@@ -86,22 +86,24 @@ define(
     	}
 
     	chatter.setCubeValues=function(inData) {
-    		console.log("setCubeValues");
-    		cubeValues[1]=inData.one;
-    		cubeValues[2]=inData.two;
-    		cubeValues[3]=inData.three;
-    		cubeValues[4]=inData.four;
-    		cubeValues[5]=inData.five;
-    		cubeValues[6]=inData.six;
-    		cubeValues[7]=inData.seven;
-    		cubeValues[8]=inData.eight;
-    		cubeValues[9]=inData.nine;
-    		for(i=1;i<10;i++){
-				var thisCube = document.getElementById("cube"+i);
-				thisCube.firstChild.src="images/cubes/cube"+i+"-"+cubeValues[i]+".jpg";
-				thisCube.firstChild.cubeValue=cubeValues[i]; // store the value on the element
-    		}
-    	}
+    		if(hasCubes) {
+	    		console.log("setCubeValues");
+	    		cubeValues[1]=inData.one;
+	    		cubeValues[2]=inData.two;
+	    		cubeValues[3]=inData.three;
+	    		cubeValues[4]=inData.four;
+	    		cubeValues[5]=inData.five;
+	    		cubeValues[6]=inData.six;
+	    		cubeValues[7]=inData.seven;
+	    		cubeValues[8]=inData.eight;
+	    		cubeValues[9]=inData.nine;
+	    		for(i=1;i<10;i++){
+					var thisCube = document.getElementById("cube"+i);
+					thisCube.firstChild.src="images/cubes/cube"+i+"-"+cubeValues[i]+".jpg";
+					thisCube.firstChild.cubeValue=cubeValues[i]; // store the value on the element
+	    		}
+	    	}
+	    }
 
 		// remember the chat area (the "script") and sound state button
 		var theScript = document.getElementById("publicChatArea");
@@ -118,6 +120,7 @@ define(
 				//comm.sendJSONmsg("chat", {"text": msg, "time": time_cb(), "texttype": texttype});
 				chatter.sayOffer(msg, myName, myColour, myVoice, texttype, selectedCubeId, selectedCubeValue, true);
 				thisTB.value="";
+				blankCube();
 			}
 		}
 
@@ -128,8 +131,15 @@ define(
 			} else {
 				disableCube(true);
 			}
+			offerTB.onkeydown = function(evt){
+				if (evt.key==="Enter") {
+					evt.preventDefault();
+				}
+			}
 			offerTB.onkeyup = function(evt){
-				keyupHandler(evt, offerTB, OFFER);
+				if (!hasCubes || selectedCube!=null) {
+					keyupHandler(evt, offerTB, OFFER);
+				}
 			}
 	    }
 	    if(intentTB){
@@ -139,6 +149,11 @@ define(
 			}
 			intentTB.onkeyup = function(evt){
 				keyupHandler(evt, intentTB, INTENT);
+			}
+			intentTB.onkeydown = function(evt){
+				if (evt.key==="Enter") {
+					evt.preventDefault();
+				}
 			}
 	    }
 
@@ -170,9 +185,16 @@ define(
 		}
 
 		function blankCube() {
-			if(hasCubes)
+			if(hasCubes) {
 				cubeMenu.src="images/cubes/cube0.jpg";
 				cubeMenuDisabled.src="images/cubes/cube0.jpg";
+			}
+		}
+
+		function clearSelection() {
+	    	selectedCube=null;
+	    	selectedCubeId="";
+	    	selectedCubeValue=0;
 		}
 
         // add distinguishing of text type (awareness, offer or intent)
@@ -182,13 +204,16 @@ define(
             switch(iTexttype){
             	case OFFER:
 		            thespan.appendChild(document.createTextNode(iName + ": "));
-		            var theImage = document.createElement("IMG");
-		            theImage.src="images/cubes/"+iSelectedCube+"-"+iSelectedCubeValue+".jpg";
-		            theImage.border=1;
-		            theImage.width=30;
-		            theImage.height=30;
-		            thespan.appendChild(theImage);
-		            thespan.appendChild(document.createTextNode(" "+iText))
+		            if(hasCubes) {
+			            var theImage = document.createElement("IMG");
+			            theImage.src="images/cubes/"+iSelectedCube+"-"+iSelectedCubeValue+".jpg";
+			            theImage.border=1;
+			            theImage.width=30;
+			            theImage.height=30;
+			            thespan.appendChild(theImage);
+			            thespan.appendChild(document.createTextNode(" "))
+			        }
+		            thespan.appendChild(document.createTextNode(iText))
 		            thespan.appendChild(document.createElement("br"));
         			hideCube(iSelectedCube);
 		            if(condition==1){
@@ -196,9 +221,9 @@ define(
 				        if(iLocal){
 		        			currentState=DISABLED;
 	        				disableCube(true);
-	        				blankCube();
 		        			offerTB.disabled=true;
 		        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": OFFER, "selectedCube": iSelectedCube, "selectedCubeValue": iSelectedCubeValue});
+	        				clearSelection();
 				        } else {
 		        			currentState=OFFER;
         					disableCube(false);
@@ -231,19 +256,19 @@ define(
 			            thespan.appendChild(indentItalics);
 			            indentItalics.appendChild(document.createTextNode(iName + ": "))
 			            if(!isVerbal) {
-				            indentItalics.appendChild(document.createTextNode("[ "+iText+"]"));
+				            indentItalics.appendChild(document.createTextNode("["+iText+"]"));
 				            thespan.appendChild(document.createElement("br"));
 				        }
 			        }
 			        if(iLocal){
 			        	// if local, send the offer and intent and pass control to remote
 	        			currentState=DISABLED;
-	        			blankCube();
 	        			intentTB.disabled=true;
 	        			intentTB.hidden=true;
 	        			intentHeader.hidden=true;
 	        			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER, "selectedCube": iSelectedCube, "selectedCubeValue": iSelectedCubeValue});
 	        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": INTENT});
+	        			clearSelection();
 			        } else {
 			        	// otherwise, we now have control, so switch to offer
 	        			currentState=OFFER;
@@ -292,15 +317,15 @@ define(
           // verbal specific
           chatter.endIntent=function(i_recordedBlobs){
 			currentState=DISABLED;
-			blankCube();
 			intentTB.disabled=true;
 			intentHeader.hidden=true;
-			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER, "selectedCube": selectedCubeId, "selectedCubeValue": iSelectedCubeValue});
+			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER, "selectedCube": selectedCubeId, "selectedCubeValue": selectedCubeValue});
 			var blob = new Blob(i_recordedBlobs, {type: 'video/webm'});
 			comm.sendBlob("intent", blob);
 			// should there be a local record of intent?
 			// this.sayIntent(blob, null, null, null, true);
 			comm.sendJSONmsg("chat", {"text": "intent sent as audio", "time": time_cb(), "texttype": INTENT});
+			clearSelection();
           }
 
         return chatter;
