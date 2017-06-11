@@ -54,6 +54,7 @@ define(
 					selectedCubeValue=selectedCube.cubeValue;
 					cubeMenu.src=selectedCube.src;
 					cubeMenuDisabled.src=selectedCube.src;
+					offerTB.focus();
 				}
 			}
 		}
@@ -114,7 +115,7 @@ define(
 			var chrTyped, chrCode = 0;
 			var msg;
 			console.log("in onkeyup,  my chat text = " + thisTB.value +","+evt.key);
-			if (evt.key==="Enter") {
+			if (evt.key==="Enter" && thisTB.value != "") {
 				console.log("****");
 				msg=thisTB.value;
 				//comm.sendJSONmsg("chat", {"text": msg, "time": time_cb(), "texttype": texttype});
