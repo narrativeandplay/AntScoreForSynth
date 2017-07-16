@@ -251,8 +251,8 @@ define(
 			        }
             		break;
             	case INTENT:
-            		if(!iLocal && condition==3) {
-            			// if not local and condition 3, then show the intent
+            		if((iLocal && condition==2) || condition==3) {
+            			// if local and condition 2, or condition 3, then show the intent
 	            		var indentItalics = document.createElement("em");
 			            thespan.appendChild(indentItalics);
 			            indentItalics.appendChild(document.createTextNode(iName + ": "))
