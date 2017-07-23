@@ -17,6 +17,10 @@ define(
 		console.log("participant:" + participant);
     	var isVerbal = currentURL.query.verbal;
 		console.log("isVerbal:" + isVerbal);
+    	var turnTaking = currentURL.query.turntaking;
+		console.log("turnTaking:" + turnTaking);
+    	var optionalIntent = currentURL.query.optionalintent;
+		console.log("optionalIntent:" + optionalIntent);
 		var hasCubes = false;
 
     	var publicTB = i_publicTB;
@@ -115,7 +119,7 @@ define(
 			var chrTyped, chrCode = 0;
 			var msg;
 			console.log("in onkeyup,  my chat text = " + thisTB.value +","+evt.key);
-			if (evt.key==="Enter" && thisTB.value != "") {
+			if (evt.key==="Enter" && (thisTB.value != ""||optionalIntent)) {
 				console.log("****");
 				msg=thisTB.value;
 				//comm.sendJSONmsg("chat", {"text": msg, "time": time_cb(), "texttype": texttype});
@@ -126,7 +130,7 @@ define(
 		}
 
 	    if(offerTB){
-			if(participant==1){
+			if(participant==1 || !turnTaking){
 				offerTB.disabled = false;
 				currentState = OFFER;
 			} else {
@@ -218,18 +222,22 @@ define(
 		            thespan.appendChild(document.createElement("br"));
         			hideCube(iSelectedCube);
 		            if(condition==1){
-		            	// in condition 1, just toggle between offer and disabled
+		            	// in condition 1, if turntaking then toggle between offer and disabled
 				        if(iLocal){
-		        			currentState=DISABLED;
-	        				disableCube(true);
-		        			offerTB.disabled=true;
+		        			if(turnTaking) {
+		        				currentState=DISABLED;
+		        				disableCube(true);
+			        			offerTB.disabled=true;
+		        			}
 		        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": OFFER, "selectedCube": iSelectedCube, "selectedCubeValue": iSelectedCubeValue});
 	        				clearSelection();
 				        } else {
-		        			currentState=OFFER;
-        					disableCube(false);
-		        			offerTB.disabled=false;
-		        			offerTB.focus();
+				        	if(turnTaking) {
+			        			currentState=OFFER;
+	        					disableCube(false);
+			        			offerTB.disabled=false;
+			        			offerTB.focus();
+			        		}
 				        }
 		            } else {
 		            	// otherwise, ask for intent after offer is entered
@@ -253,17 +261,26 @@ define(
             	case INTENT:
             		if((iLocal && condition==2) || condition==3) {
             			// if local and condition 2, or condition 3, then show the intent
-	            		var indentItalics = document.createElement("em");
-			            thespan.appendChild(indentItalics);
-			            indentItalics.appendChild(document.createTextNode(iName + ": "))
-			            if(!isVerbal) {
-				            indentItalics.appendChild(document.createTextNode("["+iText+"]"));
-				            thespan.appendChild(document.createElement("br"));
-				        }
+            			if(iText!="") {
+		            		var indentItalics = document.createElement("em");
+				            thespan.appendChild(indentItalics);
+				            indentItalics.appendChild(document.createTextNode(iName + ": "))
+				            if(!isVerbal) {
+					            indentItalics.appendChild(document.createTextNode("["+iText+"]"));
+					            thespan.appendChild(document.createElement("br"));
+					        }
+					    }
 			        }
 			        if(iLocal){
-			        	// if local, send the offer and intent and pass control to remote
-	        			currentState=DISABLED;
+			        	// if local, send the offer and intent, and pass control to remote if turn taking
+			        	if(turnTaking) {
+		        			currentState=DISABLED;
+		        		} else {
+		        			currentState=OFFER;
+	        				disableCube(false);
+		        			offerTB.disabled=false;
+		        			offerTB.focus();
+		        		}
 	        			intentTB.disabled=true;
 	        			intentTB.hidden=true;
 	        			intentHeader.hidden=true;
@@ -272,10 +289,12 @@ define(
 	        			clearSelection();
 			        } else {
 			        	// otherwise, we now have control, so switch to offer
-	        			currentState=OFFER;
-        				disableCube(false);
-	        			offerTB.disabled=false;
-	        			offerTB.focus();
+			        	if(turnTaking) {
+		        			currentState=OFFER;
+	        				disableCube(false);
+		        			offerTB.disabled=false;
+		        			offerTB.focus();
+		        		}
 			        }
             		break;
             }
