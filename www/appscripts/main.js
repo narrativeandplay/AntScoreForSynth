@@ -617,6 +617,12 @@ require(
 			m_chatter.sayOffer(data.text, nameIDMap[src], colorIDMap[src], voiceIDMap[src], data.texttype, data.selectedCube, data.selectedCubeValue, false); 
 		});
 
+		// "is typing"
+		comm.registerCallback('istyping', function (data, src){
+			console.log("got istyping from src = " + src + ":"+data.text);
+			m_chatter.showRemote(data.text, nameIDMap[src], colorIDMap[src], voiceIDMap[src]); 
+		});
+
 		// received verbal intent (blob)
 		comm.registerCallback('intent', function (data, src){
 			console.log("got intent from src = " + src + ":"+data);

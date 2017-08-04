@@ -319,6 +319,21 @@ color:black;
 	width:99%;
 	font-family:Calibri ; font-size:14px; 
 }
+#remoteheader{
+	width:99%;
+	font-family:Calibri ; font-size:14px; 
+	color: grey;
+}
+#remoteDisplay{
+	vertical-align: text-top;
+	padding: 1px;
+	margin: 2px;
+	width: inherit;
+	border-color: lightgrey;
+	background: #eeeeee;
+	rows:1;
+	resize: none;
+}
 #awarenessInput{
 	vertical-align: text-top;
 	padding: 1px;

@@ -21,12 +21,16 @@ define(
 		console.log("turnTaking:" + turnTaking);
     	var optionalIntent = currentURL.query.optionalintent;
 		console.log("optionalIntent:" + optionalIntent);
+        var sendImmediately = currentURL.query.sendimmediately; // should changes by sent on keystroke?
+		console.log("sendImmediately:" + sendImmediately);
 		var hasCubes = false;
 
     	var publicTB = i_publicTB;
     	var offerTB = i_offerTB;
     	var intentTB = i_intentTB;
     	var intentHeader = document.getElementById("intentHeader");
+    	var remoteTB = document.getElementById("remoteDisplay");
+    	var remoteHeader = document.getElementById("remoteHeader");
     	var myName = i_name;
     	var myColour = i_colour;
     	var myVoice = i_voice;
@@ -126,9 +130,19 @@ define(
 				chatter.sayOffer(msg, myName, myColour, myVoice, texttype, selectedCubeId, selectedCubeValue, true);
 				thisTB.value="";
 				blankCube();
+			} else if (evt.key!="Enter" && thisTB===offerTB && sendImmediately) {
+				msg=thisTB.value;
+				comm.sendJSONmsg("istyping", {"text": msg, "time": time_cb()});				
 			}
 		}
 
+	    if(remoteTB){
+			if(sendImmediately) {
+				console.log("!!!!!!!")
+				remoteTB.hidden=false;
+				remoteHeader.hidden=false;
+			}
+	    }
 	    if(offerTB){
 			if(participant==1 || !turnTaking){
 				offerTB.disabled = false;
@@ -202,6 +216,11 @@ define(
 	    	selectedCubeValue=0;
 		}
 
+		// remote display
+		chatter.showRemote = function(iText, iName, iColor, iVoice) {
+			remoteTB.value = iText;
+		}
+
         // add distinguishing of text type (awareness, offer or intent)
         chatter.sayOffer = function(iText, iName, iColor, iVoice, iTexttype, iSelectedCube, iSelectedCubeValue, iLocal) {
             var thespan = document.createElement("span");
@@ -221,6 +240,9 @@ define(
 		            thespan.appendChild(document.createTextNode(iText))
 		            thespan.appendChild(document.createElement("br"));
         			hideCube(iSelectedCube);
+        			if(!iLocal) {
+			            remoteTB.value="";
+        			}
 		            if(condition==1){
 		            	// in condition 1, if turntaking then toggle between offer and disabled
 				        if(iLocal){
