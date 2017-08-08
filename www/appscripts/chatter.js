@@ -240,7 +240,7 @@ define(
 		            thespan.appendChild(document.createTextNode(iText))
 		            thespan.appendChild(document.createElement("br"));
         			hideCube(iSelectedCube);
-        			if(!iLocal) {
+        			if(!iLocal && sendImmediately) {
 			            remoteTB.value="";
         			}
 		            if(condition==1){
