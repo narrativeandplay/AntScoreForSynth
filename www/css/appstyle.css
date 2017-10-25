@@ -329,8 +329,8 @@ color:black;
 	padding: 1px;
 	margin: 2px;
 	width: inherit;
-	border-color: lightgrey;
-	background: #eeeeee;
+	border-color: white;
+	background: white;
 	rows:1;
 	resize: none;
 }
@@ -346,7 +346,7 @@ color:black;
 	vertical-align: text-top;
 	padding: 1px;
 	margin: 2px;
-	width: 90%;
+	width: inherit; /*90%;*/
 	rows:1;
 	resize: none;
 }

@@ -10,20 +10,24 @@ define(
 
     	var chatter={};
 
-    	var condition = currentURL.query.condition;
+    	var condition = currentURL.query.condition; // experimental condition (1=no intent, 2=local only, 3=both)
 		console.log("condition:" + condition);
-    	var participant = currentURL.query.participant;
+    	var participant = currentURL.query.participant; // participant number (1 or 2)
     	chatter.participant=participant;
 		console.log("participant:" + participant);
-    	var isVerbal = currentURL.query.verbal;
+    	var isVerbal = currentURL.query.verbal; // is intent sent verbally?
 		console.log("isVerbal:" + isVerbal);
-    	var turnTaking = currentURL.query.turntaking;
+    	var turnTaking = currentURL.query.turntaking; // turn taking: true => strict turn taking
 		console.log("turnTaking:" + turnTaking);
-    	var optionalIntent = currentURL.query.optionalintent;
+    	var optionalIntent = currentURL.query.optionalintent; // optional intent: true => can be blank/skipped
 		console.log("optionalIntent:" + optionalIntent);
-        var sendImmediately = currentURL.query.sendimmediately; // should changes by sent on keystroke?
+        var sendImmediately = currentURL.query.sendimmediately; // should changes by sent on keystroke (for awareness)?
 		console.log("sendImmediately:" + sendImmediately);
-		var hasCubes = false;
+		var hideName = currentURL.query.hidename; // should name be shown in script?
+		console.log("hideName:" + hideName);
+		var showBoth = currentURL.query.showboth; // should offer and intent fields both be shown at the same time?
+		console.log("showBoth:" + showBoth);
+		var hasCubes = false; // are we using storycubes? (set in code below)
 
     	var publicTB = i_publicTB;
     	var offerTB = i_offerTB;
@@ -66,8 +70,6 @@ define(
 				}
 			}
 		}
-
-    	var currentState = DISABLED;
 
     	chatter.setName=function(iName) {
     		myName = iName;
@@ -140,13 +142,17 @@ define(
 			if(sendImmediately) {
 				console.log("!!!!!!!")
 				remoteTB.hidden=false;
-				remoteHeader.hidden=false;
 			}
 	    }
+
+	    // set up offer textbox
 	    if(offerTB){
+	    	if(hasCubes) {
+	    		offerTB.style.width="90%"; // fix the width so cubes fit nicely on the same line
+	    	}
 			if(participant==1 || !turnTaking){
+				// either we're participant 1 or there's no turn taking, so show offer textbox
 				offerTB.disabled = false;
-				currentState = OFFER;
 			} else {
 				disableCube(true);
 			}
@@ -161,10 +167,19 @@ define(
 				}
 			}
 	    }
+
+	    // set up intent textbox
 	    if(intentTB){
 			if(condition==1) {
+				// if we're running condition 1, then there's no intent textbox
 				intentTB.style.visibility="hidden";
 				document.getElementById("intentHeader").style.visibility="hidden";
+			}
+			if(showBoth) {
+				// if showing both, then enable the intent textbox
+				intentTB.disabled = false;
+				intentTB.hidden = false;
+    			intentHeader.hidden=false;
 			}
 			intentTB.onkeyup = function(evt){
 				keyupHandler(evt, intentTB, INTENT);
@@ -217,8 +232,39 @@ define(
 		}
 
 		// remote display
-		chatter.showRemote = function(iText, iName, iColor, iVoice) {
-			remoteTB.value = iText;
+		var lastTypedTime = 0;
+		var showingTyping = false;
+		chatter.showRemoteStatus = function(iText, iName, iColor, iVoice) {
+			if(remoteTB) {
+				remoteTB.value = iName + " is typing...";
+			}
+			lastTypedTime = time_cb();
+			showingTyping = true;
+		}
+		chatter.updateRemoteStatus = function() {
+			if(showingTyping && time_cb()-lastTypedTime>1000) {
+				if(remoteTB) {
+					remoteTB.value = "";
+				}
+				showingTyping = false;
+			}
+		}
+
+		// prompts - eventually load from JSON, cheat for now
+		var prompts = [ "You set down the weight from your shoulders, shrugging off the aches from this load you've been carrying for so long. (What is this load?)",
+						"An echoing aftertaste of the last thing you've drank or eaten flickers across your tongue. (What is it? Do you enjoy / dislike this taste?)", 
+						"Yikes! There's something stuck in your footwear. (What footwear are you wearing? What is stuck in your footwear?)",
+						"There! Finally. The building ahead - a dozen paces more, and you'll be there! (Where are you going? How are you feeling now?)",
+						"You shake your head slowly, a little dazed, and realize you've been staring at your reflection for a while now. (What is the reflective surface?)",
+						"Your pockets feel a little lighter than they should be! You realize something's fallen out... (What was it? Was it important? Where might it be?)",
+						"Your nostrils picks up a faint, yet sharp scent. You recognize this scent... (What is it? Where do you recognize this from?)",
+						"Ah, something's caught in your clothing. You might have brushed against this earlier on your journey... (What is it? Where did you encounter it?)",
+						"For a brief moment, you thought you heard a voice of somebody important to you. But that's not possible, because... (Why is this impossible?)",
+						"Careful now! You stagger back, nearly falling, but catch yourself in time. (What has staggered you so?)",
+						"The people in uniform - they won't let you pass, no matter how much you threaten or beg. (What is this place? Where are you trying to go?)", 
+						"You feel reassured by that comfortable presence, so close to you. (What is this thing that comforts you? A tool? A living creature?)"];
+		chatter.showPrompt = function() {
+			chatter.sayOffer(prompts[Math.floor(Math.random() * 12)], myName, myColour, myVoice, 3, false, false, false);
 		}
 
         // add distinguishing of text type (awareness, offer or intent)
@@ -227,7 +273,9 @@ define(
             thespan.style.color=iColor;
             switch(iTexttype){
             	case OFFER:
-		            thespan.appendChild(document.createTextNode(iName + ": "));
+		            if(!hideName) {
+		            	thespan.appendChild(document.createTextNode(iName + ": "));
+		            }
 		            if(hasCubes) {
 			            var theImage = document.createElement("IMG");
 			            theImage.src="images/cubes/"+iSelectedCube+"-"+iSelectedCubeValue+".jpg";
@@ -242,12 +290,12 @@ define(
         			hideCube(iSelectedCube);
         			if(!iLocal && sendImmediately) {
 			            remoteTB.value="";
+						showingTyping = false;
         			}
 		            if(condition==1){
 		            	// in condition 1, if turntaking then toggle between offer and disabled
 				        if(iLocal){
 		        			if(turnTaking) {
-		        				currentState=DISABLED;
 		        				disableCube(true);
 			        			offerTB.disabled=true;
 		        			}
@@ -255,7 +303,6 @@ define(
 	        				clearSelection();
 				        } else {
 				        	if(turnTaking) {
-			        			currentState=OFFER;
 	        					disableCube(false);
 			        			offerTB.disabled=false;
 			        			offerTB.focus();
@@ -264,19 +311,25 @@ define(
 		            } else {
 		            	// otherwise, ask for intent after offer is entered
 			            if(iLocal) {
-				            currentState=INTENT;
-	        				disableCube(true);
-				            offerTB.disabled=true;
-				            intentTB.disabled=false;
-		        			this.pendingOffer=iText;
-		        			intentHeader.hidden=false;
-		        			// verbal specific stuff
-		        			if(isVerbal) {
-			        			startRecording();
-			        		} else {
-			        			intentTB.hidden=false;
-					            intentTB.focus();
-			        		}
+			            	if(showBoth) {
+			            		// showing both, so send right away and don't change to intent
+			        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": OFFER, "selectedCube": iSelectedCube, "selectedCubeValue": iSelectedCubeValue});
+		        				clearSelection();
+			            	} else {
+			            		// otherwise store offer and change to intent
+		        				disableCube(true);
+					            offerTB.disabled=true;
+					            intentTB.disabled=false;
+			        			this.pendingOffer=iText;
+			        			intentHeader.hidden=false;
+			        			// verbal specific stuff
+			        			if(isVerbal) {
+				        			startRecording();
+				        		} else {
+				        			intentTB.hidden=false;
+						            intentTB.focus();
+				        		}
+				        	}
 			            }
 			        }
             		break;
@@ -286,7 +339,9 @@ define(
             			if(iText!="") {
 		            		var indentItalics = document.createElement("em");
 				            thespan.appendChild(indentItalics);
-				            indentItalics.appendChild(document.createTextNode(iName + ": "))
+				            if(!hideName) {
+					            indentItalics.appendChild(document.createTextNode(iName + ": "));
+					        }
 				            if(!isVerbal) {
 					            indentItalics.appendChild(document.createTextNode("["+iText+"]"));
 					            thespan.appendChild(document.createElement("br"));
@@ -295,24 +350,22 @@ define(
 			        }
 			        if(iLocal){
 			        	// if local, send the offer and intent, and pass control to remote if turn taking
-			        	if(turnTaking) {
-		        			currentState=DISABLED;
-		        		} else {
-		        			currentState=OFFER;
-	        				disableCube(false);
-		        			offerTB.disabled=false;
-		        			offerTB.focus();
+		        		if(!showBoth) {
+				        	if(!turnTaking) {
+		        				disableCube(false);
+			        			offerTB.disabled=false;
+			        			offerTB.focus();
+			        		}
+		        			intentTB.disabled=true;
+		        			intentTB.hidden=true;
+		        			intentHeader.hidden=true;
+		        			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER, "selectedCube": iSelectedCube, "selectedCubeValue": iSelectedCubeValue});
 		        		}
-	        			intentTB.disabled=true;
-	        			intentTB.hidden=true;
-	        			intentHeader.hidden=true;
-	        			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER, "selectedCube": iSelectedCube, "selectedCubeValue": iSelectedCubeValue});
 	        			comm.sendJSONmsg("chat", {"text": iText, "time": time_cb(), "texttype": INTENT});
 	        			clearSelection();
 			        } else {
 			        	// otherwise, we now have control, so switch to offer
 			        	if(turnTaking) {
-		        			currentState=OFFER;
 	        				disableCube(false);
 		        			offerTB.disabled=false;
 		        			offerTB.focus();
@@ -358,7 +411,6 @@ define(
 
           // verbal specific
           chatter.endIntent=function(i_recordedBlobs){
-			currentState=DISABLED;
 			intentTB.disabled=true;
 			intentHeader.hidden=true;
 			comm.sendJSONmsg("chat", {"text": this.pendingOffer, "time": time_cb(), "texttype": OFFER, "selectedCube": selectedCubeId, "selectedCubeValue": selectedCubeValue});

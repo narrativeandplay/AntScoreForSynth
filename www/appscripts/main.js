@@ -155,6 +155,13 @@ require(
 			comm.sendJSONmsg("startTime", []);
 		}
 
+		var playButton = window.document.getElementById("playButton");
+		if(playButton) {
+			playButton.onclick=function(){
+				comm.sendJSONmsg("showPrompt", []);
+			}
+		}
+
 		var togglePlayButton = window.document.getElementById("playToggleButton");
 		var togglePlayState=0;
 		togglePlayButton.onclick=function(){
@@ -620,7 +627,7 @@ require(
 		// "is typing"
 		comm.registerCallback('istyping', function (data, src){
 			console.log("got istyping from src = " + src + ":"+data.text);
-			m_chatter.showRemote(data.text, nameIDMap[src], colorIDMap[src], voiceIDMap[src]); 
+			m_chatter.showRemoteStatus(data.text, nameIDMap[src], colorIDMap[src], voiceIDMap[src]); 
 		});
 
 		// received verbal intent (blob)
@@ -634,6 +641,13 @@ require(
 			console.log("got setCubes from src = " + src + ":"+data+":"+data);
 			m_chatter.setCubeValues(data); 
 		});
+
+		// for intent study, show the prompt here
+		comm.registerCallback('showPrompt', function (data, src){
+			console.log("Show the prompt");
+			m_chatter.showPrompt(); 
+		});
+
 
 		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 		// Client activity
@@ -925,6 +939,8 @@ require(
 				context.closePath();
 			}
 
+			// update remote "is typing" status
+			m_chatter.updateRemoteStatus();
 		}
 
 
