@@ -264,7 +264,11 @@ define(
 						"The people in uniform - they won't let you pass, no matter how much you threaten or beg. (What is this place? Where are you trying to go?)", 
 						"You feel reassured by that comfortable presence, so close to you. (What is this thing that comforts you? A tool? A living creature?)"];
 		chatter.showPrompt = function() {
-			chatter.sayOffer(prompts[Math.floor(Math.random() * 12)], myName, myColour, myVoice, 3, false, false, false);
+			chatter.sayOffer("Tell a story together with your partner.", myName, myColour, myVoice, 2, false, false, false);
+			chatter.sayOffer("", myName, myColour, myVoice, 2, false, false, false);
+			chatter.sayOffer("Starting prompt:", myName, myColour, myVoice, 2, false, false, false);
+			chatter.sayOffer(prompts[Math.floor(Math.random() * 12)], myName, myColour, myVoice, 2, false, false, false);
+			chatter.sayOffer("", myName, myColour, myVoice, 2, false, false, false);
 		}
 
         // add distinguishing of text type (awareness, offer or intent)
