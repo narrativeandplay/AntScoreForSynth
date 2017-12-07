@@ -382,12 +382,14 @@ define(
 			        }
             		break;
             	case PROMPT:
-				            thespan.style.display="block";
-				            thespan.style.backgroundColor="#EEEEEE";
-				            thespan.style.width="100%";
-				            thespan.appendChild(document.createTextNode(iText));
-				            thespan.appendChild(document.createElement("br"));
-            	break;
+            		if(participant!=0){
+			            thespan.style.display="block";
+			            thespan.style.backgroundColor="#EEEEEE";
+			            thespan.style.width="100%";
+			            thespan.appendChild(document.createTextNode(iText));
+			            thespan.appendChild(document.createElement("br"));
+            		}
+            		break;
             }
             theScript.appendChild(thespan);
             theScript.scrollTop = theScript.scrollHeight;
